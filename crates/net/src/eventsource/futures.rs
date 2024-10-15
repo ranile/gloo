@@ -134,15 +134,8 @@ impl EventSource {
             .map_err(js_to_js_error)?;
 
         let error_callback: Closure<dyn FnMut(web_sys::Event)> = {
-            Closure::wrap(Box::new(move |e: web_sys::Event| {
-                let is_connecting = e
-                    .current_target()
-                    .map(|target| target.unchecked_into::<web_sys::EventSource>())
-                    .map(|es| es.ready_state() == web_sys::EventSource::CONNECTING)
-                    .unwrap_or(false);
-                if !is_connecting {
-                    let _ = message_sender.unbounded_send(StreamMessage::ErrorEvent);
-                };
+            Closure::wrap(Box::new(move |_| {
+                let _ = message_sender.unbounded_send(StreamMessage::ErrorEvent);
             }) as Box<dyn FnMut(web_sys::Event)>)
         };
 

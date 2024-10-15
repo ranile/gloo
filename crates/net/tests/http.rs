@@ -3,7 +3,7 @@ use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen_test::*;
 
-#[cfg(feature = "browser_test")]
+#[cfg(feature = "browser-test")]
 wasm_bindgen_test_configure!(run_in_browser);
 
 static HTTPBIN_URL: Lazy<&'static str> =

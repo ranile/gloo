@@ -25,7 +25,6 @@ mod macros;
 mod timer;
 
 pub use counter::Counter;
-pub use macros::*;
 pub use timer::Timer;
 
 #[doc(hidden)]
