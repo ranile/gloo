@@ -79,7 +79,7 @@ cargo build -p my-particular-crate
 To run headless browser tests for a particular crate:
 
 ```shell
-wasm-pack test crates/my-particular-crate --headless --firefox # or --safari or --chrome
+wasm-pack test --headless --firefox crates/my-particular-crate # or --safari or --chrome
 ```
 
 #### Wasm Node Tests
@@ -87,7 +87,7 @@ wasm-pack test crates/my-particular-crate --headless --firefox # or --safari or 
 To run tests in Node.js:
 
 ```shell
-wasm-pack test crates/my-particular-crate --node
+wasm-pack test --node crates/my-particular-crate
 ```
 
 #### Non-Wasm Tests
