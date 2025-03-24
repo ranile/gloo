@@ -4,7 +4,10 @@ use http::Method;
 use js_sys::{ArrayBuffer, Uint8Array};
 use std::convert::{From, TryFrom, TryInto};
 use std::fmt;
+use std::future::{Future, IntoFuture};
+use std::pin::Pin;
 use std::str::FromStr;
+use std::task::{Context, Poll};
 use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
@@ -188,14 +191,59 @@ impl RequestBuilder {
         self.options.signal(signal);
         self
     }
+
     /// Builds the request and send it to the server, returning the received response.
     pub async fn send(self) -> Result<Response, Error> {
-        let req: Request = self.try_into()?;
-        req.send().await
+        self.await
     }
     /// Builds the request.
     pub fn build(self) -> Result<Request, crate::error::Error> {
         self.try_into()
+    }
+}
+
+impl IntoFuture for RequestBuilder {
+    type Output = Result<Response, Error>;
+
+    type IntoFuture = RequestBuilderFuture;
+
+    fn into_future(self) -> Self::IntoFuture {
+        RequestBuilderFuture(match TryInto::<Request>::try_into(self) {
+            Ok(req) => RequestBuilderFutureInner::Request(req.into_future()),
+            Err(e) => RequestBuilderFutureInner::Immediate(Some(e)),
+        })
+    }
+}
+
+#[derive(Debug)]
+enum RequestBuilderFutureInner {
+    Immediate(Option<Error>),
+    Request(RequestFuture),
+}
+
+impl Future for RequestBuilderFutureInner {
+    type Output = Result<Response, Error>;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        match self.get_mut() {
+            RequestBuilderFutureInner::Immediate(ref mut e) => {
+                Poll::Ready(Err(e.take().expect("Polled after Ready was returned")))
+            }
+            RequestBuilderFutureInner::Request(ref mut httpfuture) => {
+                Future::poll(Pin::new(httpfuture), cx)
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct RequestBuilderFuture(RequestBuilderFutureInner);
+
+impl Future for RequestBuilderFuture {
+    type Output = Result<Response, Error>;
+
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        Future::poll(Pin::new(&mut self.0), cx)
     }
 }
 
@@ -330,13 +378,36 @@ impl Request {
 
     /// Executes the request.
     pub async fn send(self) -> Result<Response, Error> {
+        self.await
+    }
+}
+
+impl IntoFuture for Request {
+    type Output = Result<Response, Error>;
+    type IntoFuture = RequestFuture;
+
+    fn into_future(self) -> Self::IntoFuture {
         let request = self.0;
         let promise = fetch_with_request(&request);
-        let response = JsFuture::from(promise).await.map_err(js_to_error)?;
-        response
-            .dyn_into::<web_sys::Response>()
-            .map_err(|e| panic!("fetch returned {:?}, not `Response` - this is a bug", e))
-            .map(Response::from)
+        RequestFuture(JsFuture::from(promise))
+    }
+}
+
+#[derive(Debug)]
+pub struct RequestFuture(JsFuture);
+
+impl Future for RequestFuture {
+    type Output = Result<Response, Error>;
+
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        JsFuture::poll(Pin::new(&mut self.0), cx).map(|v| {
+            let response = v.map_err(js_to_error)?;
+
+            response
+                .dyn_into::<web_sys::Response>()
+                .map_err(|e| panic!("fetch returned {:?}, not `Response` - this is a bug", e))
+                .map(Response::from)
+        })
     }
 }
 
