@@ -287,7 +287,12 @@ impl Sink<Message> for WebSocket {
 
     fn start_send(self: Pin<&mut Self>, item: Message) -> Result<(), Self::Error> {
         let result = match item {
-            Message::Bytes(bytes) => self.ws.send_with_u8_array(&bytes),
+            Message::Bytes(bytes) => self.ws.send_with_blob(
+                &web_sys::Blob::new_with_u8_array_sequence(&js_sys::Array::of1(
+                    &js_sys::Uint8Array::from(bytes.as_slice()),
+                ))
+                .map_err(|e| WebSocketError::MessageSendError(js_to_js_error(e)))?,
+            ),
             Message::Text(message) => self.ws.send_with_str(&message),
         };
         match result {
@@ -367,7 +372,7 @@ mod tests {
         let (mut sender, mut receiver) = ws.split();
 
         sender
-            .send(Message::Text(String::from("test 1")))
+            .send(Message::Bytes(String::from("test 1").as_bytes().to_vec()))
             .await
             .unwrap();
         sender
@@ -381,7 +386,7 @@ mod tests {
 
         assert_eq!(
             receiver.next().await.unwrap().unwrap(),
-            Message::Text("test 1".to_string())
+            Message::Bytes("test 1".to_string().as_bytes().to_vec())
         );
         assert_eq!(
             receiver.next().await.unwrap().unwrap(),
