@@ -154,6 +154,7 @@ jobs:
 
       - name: Build and run example history-wasi
         run: |
+          rustup target add wasm32-wasip2
           cargo build --package example-history-wasi --target wasm32-wasip2
           ~/wasmtime --trap-unknown-imports target/wasm32-wasip2/debug/example-history-wasi.wasm
 
