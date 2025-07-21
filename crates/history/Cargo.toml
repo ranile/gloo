@@ -28,7 +28,7 @@ features = ["History", "Window", "Location", "Url"]
 getrandom = { version = "0.2.10", features = ["js"] }
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3"
+wasm-bindgen-test = { workspace = true }
 gloo-timers = { version = "0.3.0", features = ["futures"], path = "../timers" }
 
 [features]
