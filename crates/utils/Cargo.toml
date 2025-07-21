@@ -9,7 +9,7 @@ readme = "README.md"
 repository = "https://github.com/rustwasm/gloo/tree/master/crates/utils"
 homepage = "https://github.com/rustwasm/gloo"
 categories = ["api-bindings", "wasm"]
-rust-version = "1.64"
+rust-version = { workspace = true }
 
 
 [dependencies]
@@ -21,13 +21,13 @@ serde_json = { version = "1.0", optional = true }
 [dependencies.web-sys]
 version = "0.3"
 features = [
-    "Document",
-    "History",
-    "HtmlElement",
-    "Location",
-    "Window",
-    "HtmlHeadElement",
-    "Element",
+  "Document",
+  "History",
+  "HtmlElement",
+  "Location",
+  "Window",
+  "HtmlHeadElement",
+  "Element",
 ]
 
 [features]

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::LazyLock;
 use wasm_bindgen_test::*;
 
-#[cfg(feature = "browser_test")]
+#[cfg(feature = "browser-test")]
 wasm_bindgen_test_configure!(run_in_browser);
 
 static HTTPBIN_URL: LazyLock<&'static str> =

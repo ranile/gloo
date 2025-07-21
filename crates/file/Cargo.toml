@@ -9,7 +9,7 @@ readme = "README.md"
 repository = "https://github.com/rustwasm/gloo/tree/master/crates/file"
 homepage = "https://github.com/rustwasm/gloo"
 categories = ["api-bindings", "asynchronous", "wasm"]
-rust-version = "1.64"
+rust-version = { workspace = true }
 
 [package.metadata.docs.rs]
 features = ["futures"]
@@ -24,15 +24,15 @@ futures-channel = { version = "0.3", optional = true }
 [dependencies.web-sys]
 version = "0.3.31"
 features = [
-    "Blob",
-    "File",
-    "FileList",
-    "FileReader",
-    "HtmlInputElement",
-    "BlobPropertyBag",
-    "FilePropertyBag",
-    "DomException",
-    "Url",
+  "Blob",
+  "File",
+  "FileList",
+  "FileReader",
+  "HtmlInputElement",
+  "BlobPropertyBag",
+  "FilePropertyBag",
+  "DomException",
+  "Url",
 ]
 
 [dev-dependencies]
