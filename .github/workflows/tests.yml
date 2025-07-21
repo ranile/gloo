@@ -156,7 +156,7 @@ jobs:
         run: |
           rustup target add wasm32-wasip2
           cargo build --package example-history-wasi --target wasm32-wasip2
-          ~/wasmtime --trap-unknown-imports target/wasm32-wasip2/debug/example-history-wasi.wasm
+          ~/wasmtime target/wasm32-wasip2/debug/example-history-wasi.wasm
 
   test-worker:
     name: Test gloo-worker
