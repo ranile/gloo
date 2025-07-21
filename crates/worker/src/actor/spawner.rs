@@ -30,11 +30,9 @@ fn create_worker(path: &str) -> DedicatedWorker {
 
     let array = Array::new();
     array.push(&format!(r#"importScripts("{js_shim_url}");wasm_bindgen("{wasm_url}");"#).into());
-    let blob = Blob::new_with_str_sequence_and_options(
-        &array,
-        BlobPropertyBag::new().type_("application/javascript"),
-    )
-    .unwrap();
+    let blob_property_bag = BlobPropertyBag::new();
+    blob_property_bag.set_type("application/javascript");
+    let blob = Blob::new_with_str_sequence_and_options(&array, &blob_property_bag).unwrap();
     let url = Url::create_object_url_with_blob(&blob).unwrap();
 
     DedicatedWorker::new(&url).expect("failed to spawn worker")

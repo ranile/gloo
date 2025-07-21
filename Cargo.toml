@@ -25,27 +25,30 @@ gloo-history = { version = "0.2", path = "crates/history", optional = true }
 gloo-worker = { version = "0.5", path = "crates/worker", optional = true }
 gloo-net = { version = "0.6", path = "crates/net", optional = true }
 
+[workspace.dependencies]
+thiserror = { version = "2.0" }
+
 [features]
 default = [
-    "timers",
-    "events",
-    "file",
-    "dialogs",
-    "storage",
-    "render",
-    "console",
-    "utils",
-    "history",
-    "worker",
-    "net",
+  "timers",
+  "events",
+  "file",
+  "dialogs",
+  "storage",
+  "render",
+  "console",
+  "utils",
+  "history",
+  "worker",
+  "net",
 ]
 futures = [
-    "timers",
-    "file",
-    "worker",
-    "gloo-timers/futures",
-    "gloo-file/futures",
-    "gloo-worker/futures",
+  "timers",
+  "file",
+  "worker",
+  "gloo-timers/futures",
+  "gloo-file/futures",
+  "gloo-worker/futures",
 ]
 timers = ["gloo-timers"]
 events = ["gloo-events"]
@@ -61,24 +64,24 @@ net = ["gloo-net"]
 
 [workspace]
 members = [
-    "crates/timers",
-    "crates/events",
-    "crates/net",
-    "crates/file",
-    "crates/dialogs",
-    "crates/storage",
-    "crates/console",
-    "crates/utils",
-    "crates/history",
-    "crates/worker",
-    "crates/worker-macros",
-    "crates/net",
+  "crates/timers",
+  "crates/events",
+  "crates/net",
+  "crates/file",
+  "crates/dialogs",
+  "crates/storage",
+  "crates/console",
+  "crates/utils",
+  "crates/history",
+  "crates/worker",
+  "crates/worker-macros",
+  "crates/net",
 
-    "examples/markdown",
-    "examples/clock",
-    "examples/file-hash",
-    "examples/history-wasi",
-    "examples/prime",
+  "examples/markdown",
+  "examples/clock",
+  "examples/file-hash",
+  "examples/history-wasi",
+  "examples/prime",
 ]
 
 # Passing arguments to the docsrs builder in order to properly document cfg's.

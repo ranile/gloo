@@ -27,18 +27,18 @@ serde = { version = "1", features = ["derive"] }
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = { version = "0.4" }
 futures = { version = "0.3", features = ["std"], default-features = false }
-thiserror = "1.0.37"
+thiserror = { workspace = true }
 
 [dependencies.web-sys]
 version = "0.3"
 features = [
-    "Blob",
-    "BlobPropertyBag",
-    "DedicatedWorkerGlobalScope",
-    "MessageEvent",
-    "Url",
-    "Worker",
-    "WorkerOptions",
+  "Blob",
+  "BlobPropertyBag",
+  "DedicatedWorkerGlobalScope",
+  "MessageEvent",
+  "Url",
+  "Worker",
+  "WorkerOptions",
 ]
 
 [features]

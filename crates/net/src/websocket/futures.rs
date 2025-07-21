@@ -140,10 +140,12 @@ impl WebSocket {
             }) as Box<dyn FnMut()>)
         };
 
+        let add_event_listener_options = web_sys::AddEventListenerOptions::new();
+        add_event_listener_options.set_once(true);
         ws.add_event_listener_with_callback_and_add_event_listener_options(
             "open",
             open_callback.as_ref().unchecked_ref(),
-            web_sys::AddEventListenerOptions::new().once(true),
+            &add_event_listener_options,
         )
         .map_err(js_to_js_error)?;
 
@@ -184,10 +186,12 @@ impl WebSocket {
             }) as Box<dyn FnMut(web_sys::CloseEvent)>)
         };
 
+        let add_event_listerner_options = web_sys::AddEventListenerOptions::new();
+        add_event_listerner_options.set_once(true);
         ws.add_event_listener_with_callback_and_add_event_listener_options(
             "close",
             close_callback.as_ref().unchecked_ref(),
-            web_sys::AddEventListenerOptions::new().once(true),
+            &add_event_listerner_options,
         )
         .map_err(js_to_js_error)?;
 
@@ -339,12 +343,12 @@ impl PinnedDrop for WebSocket {
                 .remove_event_listener_with_callback(ty, cb.unchecked_ref());
         }
 
-        if let Ok(close_event) = web_sys::CloseEvent::new_with_event_init_dict(
-            "close",
-            web_sys::CloseEventInit::new()
-                .code(1000)
-                .reason("client dropped"),
-        ) {
+        let close_event_init = web_sys::CloseEventInit::new();
+        close_event_init.set_code(1000);
+        close_event_init.set_reason("client dropped");
+        if let Ok(close_event) =
+            web_sys::CloseEvent::new_with_event_init_dict("close", &close_event_init)
+        {
             let _ = self.ws.dispatch_event(&close_event);
         }
     }
