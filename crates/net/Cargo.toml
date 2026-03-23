@@ -96,6 +96,7 @@ eventsource = [
     'web-sys/Event',
     'web-sys/EventTarget',
     'web-sys/EventSource',
+    'web-sys/EventSourceInit',
     'web-sys/MessageEvent',
 ]
 # As of now, only implements `AsyncRead` and `AsyncWrite` on `WebSocket`
