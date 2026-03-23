@@ -192,14 +192,14 @@ jobs:
             cargo-${{ runner.os }}-test-worker-
             cargo-${{ runner.os }}-
 
+      - name: Build Test Worker
+        run: |
+          trunk build --dist examples/${{ matrix.example }}/dist examples/${{ matrix.example }}/index.html
+
       - name: Build and Run Test Server
         run: |
           cargo build -p example-${{ matrix.example }} --bin example_${{ matrix.example }}_test_server
           nohup target/debug/example_${{ matrix.example }}_test_server examples/${{ matrix.example }}/dist &
-
-      - name: Build Test Worker
-        run: |
-          trunk build examples/${{ matrix.example }}/index.html
 
       - name: Run tests for gloo worker
         run: |
