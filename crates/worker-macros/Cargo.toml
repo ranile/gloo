@@ -15,11 +15,11 @@ rust-version = { workspace = true }
 proc-macro = true
 
 [dependencies]
-proc-macro-crate = "3.3.0"
+proc-macro-crate = ">=3.3.0, <3.4.0"
 proc-macro2 = "1.0.47"
 quote = "1.0.21"
 syn = { version = "2.0.15", features = ["full"] }
 
 [dev-dependencies]
-trybuild = "1"
+trybuild = ">=1, <1.0.101"
 gloo = { path = "../..", features = ["futures"] }
