@@ -6,7 +6,7 @@ use gloo_worker::Spawnable;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-#[function_component]
+#[component]
 fn App() -> Html {
     let result = use_state(|| None);
     let calculating = use_state(|| false);
@@ -16,6 +16,7 @@ fn App() -> Html {
         let result = result.clone();
 
         use_memo(
+            (),
             move |_| {
                 HashWorker::spawner()
                     .callback(move |o| {
@@ -26,7 +27,6 @@ fn App() -> Html {
                     .with_loader(true)
                     .spawn("/example_file_hash_worker_loader.js")
             },
-            (),
         )
     };
 
@@ -34,6 +34,7 @@ fn App() -> Html {
         let calculating = calculating.clone();
         let result = result.clone();
         use_callback(
+            (),
             move |e: Event, _i| {
                 let el: HtmlInputElement = e.target_unchecked_into();
                 if let Some(f) = el.files().and_then(|m| m.item(0)) {
@@ -43,7 +44,6 @@ fn App() -> Html {
                     worker.send(input);
                 }
             },
-            (),
         )
     };
 
