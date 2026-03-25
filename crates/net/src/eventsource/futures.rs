@@ -111,8 +111,8 @@ impl EventSourceBuilder {
 
     /// Build the EventSource and connect to the given URL.
     pub fn build(self, url: &str) -> Result<EventSource, JsError> {
-        let mut init = web_sys::EventSourceInit::new();
-        init.with_credentials(self.with_credentials);
+        let init = web_sys::EventSourceInit::new();
+        init.set_with_credentials(self.with_credentials);
 
         let es = web_sys::EventSource::new_with_event_source_init_dict(url, &init)
             .map_err(js_to_js_error)?;
