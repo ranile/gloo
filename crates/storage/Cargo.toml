@@ -18,9 +18,11 @@ serde_json = "1.0"
 thiserror = { workspace = true }
 js-sys = { workspace = true }
 gloo-utils = { version = "0.2", path = "../utils" }
+wasm-bindgen-futures = "0.4.50"
+
 [dependencies.web-sys]
 version = "0.3"
-features = ["Storage", "Window"]
+features = ["Storage", "Window", "CacheStorage", "Cache", "Request", "Response"]
 
 [dev-dependencies]
 wasm-bindgen-test = { workspace = true }

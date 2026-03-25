@@ -7,15 +7,18 @@
 #![deny(missing_docs, missing_debug_implementations)]
 
 use serde::{Deserialize, Serialize};
+use std::future::Future;
 use wasm_bindgen::prelude::*;
 
 use crate::errors::js_to_error;
 use errors::StorageError;
 use serde_json::{Map, Value};
 
+mod cache_storage;
 pub mod errors;
 mod local_storage;
 mod session_storage;
+pub use cache_storage::CacheStorage;
 pub use local_storage::LocalStorage;
 pub use session_storage::SessionStorage;
 
@@ -94,4 +97,31 @@ pub trait Storage {
             .length()
             .expect_throw("unreachable: length does not throw an exception")
     }
+}
+
+/// Trait for async cache-like storage
+pub trait AsyncStorage {
+    /// Get a value by key
+    fn get<T>(key: &str) -> impl Future<Output = Result<T>>
+    where
+        T: for<'de> Deserialize<'de> + 'static;
+
+    /// Get all keys/values as a deserialized map or struct
+    fn get_all<T>() -> impl Future<Output = Result<T>>
+    where
+        T: for<'de> Deserialize<'de> + 'static;
+
+    /// Set a value by key
+    fn set<T>(key: &str, value: T) -> impl Future<Output = Result<()>>
+    where
+        T: Serialize + 'static;
+
+    /// Delete a key
+    fn delete(key: &str) -> impl Future<Output = Result<()>>;
+
+    /// Clear all keys
+    fn clear() -> impl Future<Output = Result<()>>;
+
+    /// Get number of stored items
+    fn length() -> impl Future<Output = Result<u32>>;
 }
