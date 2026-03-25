@@ -14,7 +14,7 @@ jobs:
     name: Native Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
@@ -41,7 +41,7 @@ jobs:
     name: Browser Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
@@ -51,7 +51,7 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Setup trunk
-        uses: jetli/trunk-action@v0.4.0
+        uses: jetli/trunk-action@v0.5.1
         with:
           version: 'latest'
 
@@ -88,7 +88,7 @@ jobs:
     name: Node Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
@@ -125,13 +125,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust-version: [1.64, stable, nightly]
+        rust-version: [stable, nightly]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
-          target: wasm32-wasi
+          target: wasm32-wasip1
 
       - name: Install wasmtime
         run: |
@@ -154,8 +154,8 @@ jobs:
 
       - name: Build and run example history-wasi
         run: |
-          cargo build --package example-history-wasi --target wasm32-wasi
-          ~/wasmtime --trap-unknown-imports target/wasm32-wasi/debug/example-history-wasi.wasm
+          cargo build --package example-history-wasi --target wasm32-wasip1
+          ~/wasmtime --trap-unknown-imports target/wasm32-wasip1/debug/example-history-wasi.wasm
 
   test-worker:
     name: Test gloo-worker
@@ -167,7 +167,7 @@ jobs:
         example: [markdown]
         rust-version: [1.64, stable, nightly]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
@@ -177,7 +177,7 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Setup trunk
-        uses: jetli/trunk-action@v0.4.0
+        uses: jetli/trunk-action@v0.5.1
         with:
           version: 'latest'
 
@@ -192,14 +192,14 @@ jobs:
             cargo-${{ runner.os }}-test-worker-
             cargo-${{ runner.os }}-
 
+      - name: Build Test Worker
+        run: |
+          trunk build --dist examples/${{ matrix.example }}/dist examples/${{ matrix.example }}/index.html
+
       - name: Build and Run Test Server
         run: |
           cargo build -p example-${{ matrix.example }} --bin example_${{ matrix.example }}_test_server
           nohup target/debug/example_${{ matrix.example }}_test_server examples/${{ matrix.example }}/dist &
-
-      - name: Build Test Worker
-        run: |
-          trunk build examples/${{ matrix.example }}/index.html
 
       - name: Run tests for gloo worker
         run: |
@@ -223,7 +223,7 @@ jobs:
           - 8081:8080
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable

@@ -243,6 +243,11 @@ impl WebSocket {
     pub fn protocol(&self) -> String {
         self.ws.protocol()
     }
+
+    /// Number of pending, unsent bytes queued, but not transmitted to the network.
+    pub fn buffered_amount(&self) -> u32 {
+        self.ws.buffered_amount()
+    }
 }
 
 impl TryFrom<web_sys::WebSocket> for WebSocket {
