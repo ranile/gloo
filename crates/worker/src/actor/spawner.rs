@@ -200,8 +200,7 @@ where
             array.push(&shim.into());
             let opts = BlobPropertyBag::new();
             opts.set_type("application/javascript");
-            let blob = Blob::new_with_str_sequence_and_options(&array, &opts)
-            .unwrap();
+            let blob = Blob::new_with_str_sequence_and_options(&array, &opts).unwrap();
             let url = Url::create_object_url_with_blob(&blob).unwrap();
             std::borrow::Cow::Owned(url)
         };

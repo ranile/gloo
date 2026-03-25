@@ -15,36 +15,30 @@ fn App() -> Html {
         let calculating = calculating.clone();
         let result = result.clone();
 
-        use_memo(
-            (),
-            move |_| {
-                HashWorker::spawner()
-                    .callback(move |o| {
-                        calculating.set(false);
-                        result.set(Some(o.hash));
-                    })
-                    .encoding::<TransferrableCodec>()
-                    .with_loader(true)
-                    .spawn("/example_file_hash_worker_loader.js")
-            },
-        )
+        use_memo((), move |_| {
+            HashWorker::spawner()
+                .callback(move |o| {
+                    calculating.set(false);
+                    result.set(Some(o.hash));
+                })
+                .encoding::<TransferrableCodec>()
+                .with_loader(true)
+                .spawn("/example_file_hash_worker_loader.js")
+        })
     };
 
     let on_choose_file = {
         let calculating = calculating.clone();
         let result = result.clone();
-        use_callback(
-            (),
-            move |e: Event, _i| {
-                let el: HtmlInputElement = e.target_unchecked_into();
-                if let Some(f) = el.files().and_then(|m| m.item(0)) {
-                    calculating.set(true);
-                    result.set(None);
-                    let input = HashInput { file: f };
-                    worker.send(input);
-                }
-            },
-        )
+        use_callback((), move |e: Event, _i| {
+            let el: HtmlInputElement = e.target_unchecked_into();
+            if let Some(f) = el.files().and_then(|m| m.item(0)) {
+                calculating.set(true);
+                result.set(None);
+                let input = HashInput { file: f };
+                worker.send(input);
+            }
+        })
     };
 
     html! {
