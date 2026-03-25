@@ -19,8 +19,8 @@ pub trait BlobContents: Sealed {
     unsafe fn into_jsvalue(self) -> JsValue;
 }
 
-impl<'a> Sealed for &'a str {}
-impl<'a> BlobContents for &'a str {
+impl Sealed for &str {}
+impl BlobContents for &str {
     unsafe fn into_jsvalue(self) -> JsValue {
         // Converting a Rust string to a JS string re-encodes it from UTF-8 to UTF-16,
         // and `Blob` re-encodes JS strings from UTF-16 to UTF-8.
@@ -30,8 +30,8 @@ impl<'a> BlobContents for &'a str {
     }
 }
 
-impl<'a> Sealed for &'a [u8] {}
-impl<'a> BlobContents for &'a [u8] {
+impl Sealed for &[u8] {}
+impl BlobContents for &[u8] {
     unsafe fn into_jsvalue(self) -> JsValue {
         js_sys::Uint8Array::view(self).into()
     }
@@ -82,9 +82,9 @@ impl Blob {
     where
         T: BlobContents,
     {
-        let mut properties = web_sys::BlobPropertyBag::new();
+        let properties = web_sys::BlobPropertyBag::new();
         if let Some(mime_type) = mime_type {
-            properties.type_(mime_type);
+            properties.set_type(mime_type);
         }
 
         // SAFETY: The slice will live for the duration of this function call,
@@ -209,9 +209,9 @@ impl File {
     where
         T: BlobContents,
     {
-        let mut options = web_sys::FilePropertyBag::new();
+        let options = web_sys::FilePropertyBag::new();
         if let Some(mime_type) = mime_type {
-            options.type_(mime_type);
+            options.set_type(mime_type);
         }
 
         if let Some(last_modified_time) = last_modified_time {
@@ -219,7 +219,7 @@ impl File {
                 Ok(duration) => safe_u128_to_f64(duration.as_millis()),
                 Err(time_err) => -safe_u128_to_f64(time_err.duration().as_millis()),
             };
-            options.last_modified(duration);
+            options.set_last_modified(duration);
         }
 
         // SAFETY: The original reference will live for the duration of this function call,

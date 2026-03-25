@@ -10,16 +10,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust-version: [1.64, stable, nightly]
+        rust-version: [1.82, stable, nightly]
     name: Native Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -37,11 +37,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust-version: [1.64, stable, nightly]
+        rust-version: [1.82, stable, nightly]
     name: Browser Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
@@ -51,11 +51,11 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Setup trunk
-        uses: jetli/trunk-action@v0.4.0
+        uses: jetli/trunk-action@v0.5.1
         with:
           version: 'latest'
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -84,11 +84,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust-version: [1.64, stable, nightly]
+        rust-version: [1.82, stable, nightly]
     name: Node Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
@@ -97,7 +97,7 @@ jobs:
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -125,23 +125,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust-version: [1.64, stable, nightly]
+        rust-version: [1.82, stable, nightly]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
-          target: wasm32-wasi
+          target: wasm32-wasip1
 
       - name: Install wasmtime
         run: |
-          wget https://github.com/bytecodealliance/wasmtime/releases/download/v15.0.1/wasmtime-v15.0.1-x86_64-linux.tar.xz
-          tar xf wasmtime-v15.0.1-x86_64-linux.tar.xz
-          mv wasmtime-v15.0.1-x86_64-linux/wasmtime ~/wasmtime
-          rm -rf wasmtime-v15.0.1-x86_64-linux.tar.xz wasmtime-v15.0.1-x86_64-linux
+          wget https://github.com/bytecodealliance/wasmtime/releases/download/v43.0.0/wasmtime-v43.0.0-x86_64-linux.tar.xz
+          tar xf wasmtime-v43.0.0-x86_64-linux.tar.xz
+          mv wasmtime-v43.0.0-x86_64-linux/wasmtime ~/wasmtime
+          rm -rf wasmtime-v43.0.0-x86_64-linux.tar.xz wasmtime-v43.0.0-x86_64-linux
           chmod +x ~/wasmtime
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -154,8 +154,8 @@ jobs:
 
       - name: Build and run example history-wasi
         run: |
-          cargo build --package example-history-wasi --target wasm32-wasi
-          ~/wasmtime --trap-unknown-imports target/wasm32-wasi/debug/example-history-wasi.wasm
+          cargo build --package example-history-wasi --target wasm32-wasip1
+          ~/wasmtime run -W unknown-imports-trap target/wasm32-wasip1/debug/example-history-wasi.wasm
 
   test-worker:
     name: Test gloo-worker
@@ -165,9 +165,9 @@ jobs:
       matrix:
         # example: [ markdown, prime ]
         example: [markdown]
-        rust-version: [1.64, stable, nightly]
+        rust-version: [1.82, stable, nightly]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
@@ -177,11 +177,11 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Setup trunk
-        uses: jetli/trunk-action@v0.4.0
+        uses: jetli/trunk-action@v0.5.1
         with:
           version: 'latest'
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -192,14 +192,14 @@ jobs:
             cargo-${{ runner.os }}-test-worker-
             cargo-${{ runner.os }}-
 
+      - name: Build Test Worker
+        run: |
+          trunk build --dist examples/${{ matrix.example }}/dist examples/${{ matrix.example }}/index.html
+
       - name: Build and Run Test Server
         run: |
           cargo build -p example-${{ matrix.example }} --bin example_${{ matrix.example }}_test_server
           nohup target/debug/example_${{ matrix.example }}_test_server examples/${{ matrix.example }}/dist &
-
-      - name: Build Test Worker
-        run: |
-          trunk build examples/${{ matrix.example }}/index.html
 
       - name: Run tests for gloo worker
         run: |
@@ -209,7 +209,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust-version: [1.64, stable, nightly]
+        rust-version: [1.82, stable, nightly]
     name: Test gloo-net
     runs-on: ubuntu-latest
     services:
@@ -223,7 +223,7 @@ jobs:
           - 8081:8080
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
@@ -232,7 +232,7 @@ jobs:
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -250,7 +250,7 @@ jobs:
           SSE_ECHO_SERVER_URL: 'http://localhost:8081/.sse'
         run: |
           cd crates/net
-          wasm-pack test --chrome --firefox --headless --all-features
+          wasm-pack test --chrome --firefox --headless --features=default,io-util,browser-test
 
       - uses: dtolnay/rust-toolchain@master
         with:
@@ -262,4 +262,11 @@ jobs:
           HTTPBIN_URL: 'http://localhost:8080'
           WS_ECHO_SERVER_URL: 'ws://localhost:8081'
           SSE_ECHO_SERVER_URL: 'http://localhost:8081/.sse'
-        run: cargo test -p gloo-net --all-features
+        run: cargo test -p gloo-net --features=default,io-util
+
+      - name: Run node tests
+        env:
+          HTTPBIN_URL: 'http://localhost:8080'
+          WS_ECHO_SERVER_URL: 'ws://localhost:8081'
+          SSE_ECHO_SERVER_URL: 'http://localhost:8081/.sse'
+        run: wasm-pack test --node crates/net --features=default,io-util

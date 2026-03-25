@@ -178,14 +178,14 @@ impl ResponseBuilder {
     }
 
     /// Set the status code
-    pub fn status(mut self, status: u16) -> Self {
-        self.options.status(status);
+    pub fn status(self, status: u16) -> Self {
+        self.options.set_status(status);
         self
     }
 
     /// Set the status text
-    pub fn status_text(mut self, status_text: &str) -> Self {
-        self.options.status_text(status_text);
+    pub fn status_text(self, status_text: &str) -> Self {
+        self.options.set_status_text(status_text);
         self
     }
 
@@ -203,11 +203,11 @@ impl ResponseBuilder {
     }
 
     /// Set the response body and return the response
-    pub fn body<T>(mut self, data: T) -> Result<Response, Error>
+    pub fn body<T>(self, data: T) -> Result<Response, Error>
     where
         T: IntoRawResponse,
     {
-        self.options.headers(&self.headers.into_raw());
+        self.options.set_headers(&self.headers.into_raw());
         let init = self.options;
 
         data.into_raw(init).map(Response).map_err(js_to_error)

@@ -152,11 +152,11 @@ impl EventListenerOptions {
 
     #[inline]
     fn as_js(&self, once: bool) -> AddEventListenerOptions {
-        let mut options = AddEventListenerOptions::new();
+        let options = AddEventListenerOptions::new();
 
-        options.capture(self.phase.is_capture());
-        options.once(once);
-        options.passive(self.passive);
+        options.set_capture(self.phase.is_capture());
+        options.set_once(once);
+        options.set_passive(self.passive);
 
         options
     }

@@ -1,11 +1,11 @@
 use crate::http::{Headers, QueryParams, Response};
 use crate::{js_to_error, Error};
 use http::Method;
-use js_sys::{ArrayBuffer, Reflect, Uint8Array};
+use js_sys::{ArrayBuffer, Uint8Array};
 use std::convert::{From, TryFrom, TryInto};
 use std::fmt;
 use std::str::FromStr;
-use wasm_bindgen::{JsCast, JsValue};
+use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
     AbortSignal, FormData, ObserverCallback, ReadableStream, ReferrerPolicy, RequestCache,
@@ -15,6 +15,17 @@ use web_sys::{
 #[cfg(feature = "json")]
 #[cfg_attr(docsrs, doc(cfg(feature = "json")))]
 use serde::de::DeserializeOwned;
+
+#[wasm_bindgen]
+extern "C" {
+    // Create a separate binding for `fetch` as a global, rather than using the
+    // existing Window/WorkerGlobalScope bindings defined by web_sys, for
+    // greater efficiency.
+    //
+    // https://github.com/rustwasm/wasm-bindgen/discussions/3863
+    #[wasm_bindgen(js_name = "fetch")]
+    fn fetch_with_request(request: &web_sys::Request) -> js_sys::Promise;
+}
 
 /// A wrapper round `web_sys::Request`: an http request to be used with the `fetch` API.
 pub struct RequestBuilder {
@@ -38,22 +49,22 @@ impl RequestBuilder {
     }
 
     /// Set the body for this request.
-    pub fn body(mut self, body: impl Into<JsValue>) -> Result<Request, Error> {
-        self.options.body(Some(&body.into()));
+    pub fn body(self, body: impl Into<JsValue>) -> Result<Request, Error> {
+        self.options.set_body(&body.into());
 
         self.try_into()
     }
 
     /// A string indicating how the request will interact with the browser’s HTTP cache.
-    pub fn cache(mut self, cache: RequestCache) -> Self {
-        self.options.cache(cache);
+    pub fn cache(self, cache: RequestCache) -> Self {
+        self.options.set_cache(cache);
         self
     }
 
     /// Controls what browsers do with credentials (cookies, HTTP authentication entries, and TLS
     /// client certificates).
-    pub fn credentials(mut self, credentials: RequestCredentials) -> Self {
-        self.options.credentials(credentials);
+    pub fn credentials(self, credentials: RequestCredentials) -> Self {
+        self.options.set_credentials(credentials);
         self
     }
 
@@ -109,8 +120,8 @@ impl RequestBuilder {
 
     /// The subresource integrity value of the request (e.g.,
     /// `sha256-BpfBw7ivV8q2jLiT13fxDYAe2tJllusRSZ273h2nFSE=`).
-    pub fn integrity(mut self, integrity: &str) -> Self {
-        self.options.integrity(integrity);
+    pub fn integrity(self, integrity: &str) -> Self {
+        self.options.set_integrity(integrity);
         self
     }
 
@@ -127,20 +138,20 @@ impl RequestBuilder {
     }
 
     /// The request method, e.g., GET, POST.
-    pub fn method(mut self, method: Method) -> Self {
-        self.options.method(method.as_ref());
+    pub fn method(self, method: Method) -> Self {
+        self.options.set_method(method.as_ref());
         self
     }
 
     /// The mode you want to use for the request.
-    pub fn mode(mut self, mode: RequestMode) -> Self {
-        self.options.mode(mode);
+    pub fn mode(self, mode: RequestMode) -> Self {
+        self.options.set_mode(mode);
         self
     }
 
     /// Sets the observer callback.
-    pub fn observe(mut self, observe: &ObserverCallback) -> Self {
-        self.options.observe(observe);
+    pub fn observe(self, observe: &ObserverCallback) -> Self {
+        self.options.set_observe(observe);
         self
     }
 
@@ -151,30 +162,30 @@ impl RequestBuilder {
     /// - *error*: Abort with an error if a redirect occurs.
     /// - *manual*: Caller intends to process the response in another context. See [WHATWG fetch
     ///   standard](https://fetch.spec.whatwg.org/#requests) for more information.
-    pub fn redirect(mut self, redirect: RequestRedirect) -> Self {
-        self.options.redirect(redirect);
+    pub fn redirect(self, redirect: RequestRedirect) -> Self {
+        self.options.set_redirect(redirect);
         self
     }
 
     /// The referrer of the request.
     ///
     /// This can be a same-origin URL, `about:client`, or an empty string.
-    pub fn referrer(mut self, referrer: &str) -> Self {
-        self.options.referrer(referrer);
+    pub fn referrer(self, referrer: &str) -> Self {
+        self.options.set_referrer(referrer);
         self
     }
 
     /// Specifies the
     /// [referrer policy](https://w3c.github.io/webappsec-referrer-policy/#referrer-policies) to
     /// use for the request.
-    pub fn referrer_policy(mut self, referrer_policy: ReferrerPolicy) -> Self {
-        self.options.referrer_policy(referrer_policy);
+    pub fn referrer_policy(self, referrer_policy: ReferrerPolicy) -> Self {
+        self.options.set_referrer_policy(referrer_policy);
         self
     }
 
     /// Sets the request abort signal.
-    pub fn abort_signal(mut self, signal: Option<&AbortSignal>) -> Self {
-        self.options.signal(signal);
+    pub fn abort_signal(self, signal: Option<&AbortSignal>) -> Self {
+        self.options.set_signal(signal);
         self
     }
     /// Builds the request and send it to the server, returning the received response.
@@ -191,20 +202,27 @@ impl RequestBuilder {
 impl TryFrom<RequestBuilder> for Request {
     type Error = crate::error::Error;
 
-    fn try_from(mut value: RequestBuilder) -> Result<Self, Self::Error> {
+    fn try_from(value: RequestBuilder) -> Result<Self, Self::Error> {
         // To preserve existing query parameters of self.url, it must be parsed and extended with
         // self.query's parameters. As web_sys::Url just accepts absolute URLs, retrieve the
         // absolute URL through creating a web_sys::Request object.
         let request = web_sys::Request::new_with_str(&value.url).map_err(js_to_error)?;
         let url = web_sys::Url::new(&request.url()).map_err(js_to_error)?;
-        let combined_query = match url.search().as_str() {
-            "" => value.query.to_string(),
-            _ => format!("{}&{}", url.search(), value.query),
+
+        let url_search = url.search();
+        let combined_query = if url_search.is_empty() {
+            value.query.to_string()
+        } else {
+            let mut query = value.query.to_string();
+            if !query.is_empty() {
+                query = format!("&{query}");
+            }
+            format!("{url_search}{query}")
         };
         url.set_search(&combined_query);
 
         let final_url = String::from(url.to_string());
-        value.options.headers(&value.headers.into_raw());
+        value.options.set_headers(&value.headers.into_raw());
         let request = web_sys::Request::new_with_str_and_init(&final_url, &value.options)
             .map_err(js_to_error)?;
 
@@ -320,23 +338,7 @@ impl Request {
     /// Executes the request.
     pub async fn send(self) -> Result<Response, Error> {
         let request = self.0;
-        let global = js_sys::global();
-        let maybe_window =
-            Reflect::get(&global, &JsValue::from_str("Window")).map_err(js_to_error)?;
-        let promise = if !maybe_window.is_undefined() {
-            let window = global.dyn_into::<web_sys::Window>().unwrap();
-            window.fetch_with_request(&request)
-        } else {
-            let maybe_worker = Reflect::get(&global, &JsValue::from_str("WorkerGlobalScope"))
-                .map_err(js_to_error)?;
-            if !maybe_worker.is_undefined() {
-                let worker = global.dyn_into::<web_sys::WorkerGlobalScope>().unwrap();
-                worker.fetch_with_request(&request)
-            } else {
-                panic!("Unsupported JavaScript global context");
-            }
-        };
-
+        let promise = fetch_with_request(&request);
         let response = JsFuture::from(promise).await.map_err(js_to_error)?;
         response
             .dyn_into::<web_sys::Response>()

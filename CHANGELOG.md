@@ -155,11 +155,17 @@
 
 ## `net`
 
-### Version "0.6.0"
+### Version "0.7.0"
 
 - Remove `Clone` implementation for `EventSource`.
   Due to bug triggering unwanted behavior upon clone, when dropped instances would disconnect all others.
   See Discussion (#409)
+  
+
+### Version "0.6.0"
+
+- Update http crate to 1.0 (#407)
+
 
 ### Version "0.5.0"
 

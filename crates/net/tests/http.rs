@@ -1,12 +1,13 @@
 use gloo_net::http::Request;
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
+use std::sync::LazyLock;
 use wasm_bindgen_test::*;
 
+#[cfg(feature = "browser-test")]
 wasm_bindgen_test_configure!(run_in_browser);
 
-static HTTPBIN_URL: Lazy<&'static str> =
-    Lazy::new(|| option_env!("HTTPBIN_URL").expect("Did you set HTTPBIN_URL?"));
+static HTTPBIN_URL: LazyLock<&'static str> =
+    LazyLock::new(|| option_env!("HTTPBIN_URL").expect("Did you set HTTPBIN_URL?"));
 
 #[wasm_bindgen_test]
 async fn fetch() {

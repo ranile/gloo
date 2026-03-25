@@ -140,10 +140,12 @@ impl WebSocket {
             }) as Box<dyn FnMut()>)
         };
 
+        let add_event_listener_options = web_sys::AddEventListenerOptions::new();
+        add_event_listener_options.set_once(true);
         ws.add_event_listener_with_callback_and_add_event_listener_options(
             "open",
             open_callback.as_ref().unchecked_ref(),
-            web_sys::AddEventListenerOptions::new().once(true),
+            &add_event_listener_options,
         )
         .map_err(js_to_js_error)?;
 
@@ -184,10 +186,12 @@ impl WebSocket {
             }) as Box<dyn FnMut(web_sys::CloseEvent)>)
         };
 
+        let add_event_listener_options = web_sys::AddEventListenerOptions::new();
+        add_event_listener_options.set_once(true);
         ws.add_event_listener_with_callback_and_add_event_listener_options(
             "close",
             close_callback.as_ref().unchecked_ref(),
-            web_sys::AddEventListenerOptions::new().once(true),
+            &add_event_listener_options,
         )
         .map_err(js_to_js_error)?;
 
@@ -243,6 +247,11 @@ impl WebSocket {
     pub fn protocol(&self) -> String {
         self.ws.protocol()
     }
+
+    /// Number of pending, unsent bytes queued, but not transmitted to the network.
+    pub fn buffered_amount(&self) -> u32 {
+        self.ws.buffered_amount()
+    }
 }
 
 impl TryFrom<web_sys::WebSocket> for WebSocket {
@@ -287,7 +296,12 @@ impl Sink<Message> for WebSocket {
 
     fn start_send(self: Pin<&mut Self>, item: Message) -> Result<(), Self::Error> {
         let result = match item {
-            Message::Bytes(bytes) => self.ws.send_with_u8_array(&bytes),
+            Message::Bytes(bytes) => self.ws.send_with_blob(
+                &web_sys::Blob::new_with_u8_array_sequence(&js_sys::Array::of1(
+                    &js_sys::Uint8Array::from(bytes.as_slice()),
+                ))
+                .map_err(|e| WebSocketError::MessageSendError(js_to_js_error(e)))?,
+            ),
             Message::Text(message) => self.ws.send_with_str(&message),
         };
         match result {
@@ -339,12 +353,12 @@ impl PinnedDrop for WebSocket {
                 .remove_event_listener_with_callback(ty, cb.unchecked_ref());
         }
 
-        if let Ok(close_event) = web_sys::CloseEvent::new_with_event_init_dict(
-            "close",
-            web_sys::CloseEventInit::new()
-                .code(1000)
-                .reason("client dropped"),
-        ) {
+        let close_event_init = web_sys::CloseEventInit::new();
+        close_event_init.set_code(1000);
+        close_event_init.set_reason("client dropped");
+        if let Ok(close_event) =
+            web_sys::CloseEvent::new_with_event_init_dict("close", &close_event_init)
+        {
             let _ = self.ws.dispatch_event(&close_event);
         }
     }
@@ -352,11 +366,24 @@ impl PinnedDrop for WebSocket {
 
 #[cfg(test)]
 mod tests {
+    use crate::http::Request;
+
     use super::*;
     use futures::{SinkExt, StreamExt};
     use wasm_bindgen_test::*;
 
     wasm_bindgen_test_configure!(run_in_browser);
+
+    #[wasm_bindgen_test]
+    async fn can_build_url_with_parameters_and_ampersand_is_not_added() {
+        let url = "http://something.com/get?param1=value1";
+        let request = Request::get(url).build().unwrap();
+        assert_eq!(
+            request.url(),
+            url,
+            "url of the built request should be equal to the parameter provided {url}"
+        );
+    }
 
     #[wasm_bindgen_test]
     async fn websocket_works() {
@@ -367,7 +394,7 @@ mod tests {
         let (mut sender, mut receiver) = ws.split();
 
         sender
-            .send(Message::Text(String::from("test 1")))
+            .send(Message::Bytes(String::from("test 1").as_bytes().to_vec()))
             .await
             .unwrap();
         sender
@@ -381,7 +408,7 @@ mod tests {
 
         assert_eq!(
             receiver.next().await.unwrap().unwrap(),
-            Message::Text("test 1".to_string())
+            Message::Bytes("test 1".to_string().as_bytes().to_vec())
         );
         assert_eq!(
             receiver.next().await.unwrap().unwrap(),

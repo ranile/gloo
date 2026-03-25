@@ -9,7 +9,7 @@ repository = "https://github.com/rustwasm/gloo/tree/master/crates/worker"
 homepage = "https://github.com/rustwasm/gloo"
 license = "MIT OR Apache-2.0"
 categories = ["api-bindings", "asynchronous", "wasm"]
-rust-version = "1.64"
+rust-version = { workspace = true }
 
 [package.metadata.docs.rs]
 all-features = true
@@ -21,24 +21,25 @@ rustdoc-args = ["--cfg", "docsrs"]
 bincode = "1"
 gloo-utils = { path = "../utils", version = "0.2" }
 gloo-worker-macros = { path = "../worker-macros", version = "0.1" }
-js-sys = "0.3"
+js-sys = { workspace = true }
 pinned = "0.1.0"
 serde = { version = "1", features = ["derive"] }
 wasm-bindgen = "0.2"
-wasm-bindgen-futures = { version = "0.4" }
+wasm-bindgen-futures = { workspace = true }
 futures = { version = "0.3", features = ["std"], default-features = false }
-thiserror = "1.0.37"
+thiserror = { workspace = true }
 
 [dependencies.web-sys]
 version = "0.3"
 features = [
-    "Blob",
-    "BlobPropertyBag",
-    "DedicatedWorkerGlobalScope",
-    "MessageEvent",
-    "Url",
-    "Worker",
-    "WorkerOptions",
+  "Blob",
+  "BlobPropertyBag",
+  "DedicatedWorkerGlobalScope",
+  "MessageEvent",
+  "Url",
+  "Worker",
+  "WorkerOptions",
+  "WorkerType",
 ]
 
 [features]
