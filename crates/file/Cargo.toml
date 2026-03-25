@@ -22,7 +22,7 @@ mime = { version = "0.3.13", optional = true }
 futures-channel = { version = "0.3", optional = true }
 
 [dependencies.web-sys]
-version = "0.3.31"
+version = "0.3.91"
 features = [
   "Blob",
   "File",
@@ -39,10 +39,10 @@ features = [
 futures_rs = { version = "0.3", package = "futures" }
 wasm-bindgen-test = { workspace = true }
 wasm-bindgen-futures = { workspace = true }
-chrono = { version = "0.4.10", features = ["wasmbind"] }
+chrono = { version = "0.4.44", features = ["wasmbind"] }
 
 [dev-dependencies.web-sys]
-version = "0.3.31"
+version = "0.3.91"
 features = ["Window", "Response"]
 
 [features]

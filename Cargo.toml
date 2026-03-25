@@ -30,10 +30,10 @@ gloo-net = { version = "0.6", path = "crates/net", optional = true }
 
 [workspace.dependencies]
 thiserror = "2.0"
-wasm-bindgen-futures = "0.4.4"
+wasm-bindgen-futures = "0.4.45"
 wasm-bindgen = "0.2"
-wasm-bindgen-test = "0.3.4"
-js-sys = "0.3.77"
+wasm-bindgen-test = "0.3.45"
+js-sys = "0.3.91"
 
 [features]
 default = [
