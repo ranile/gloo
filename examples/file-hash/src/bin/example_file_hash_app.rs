@@ -6,7 +6,7 @@ use gloo_worker::Spawnable;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-#[component]
+#[function_component]
 fn App() -> Html {
     let result = use_state(|| None);
     let calculating = use_state(|| false);
