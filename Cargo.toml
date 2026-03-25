@@ -72,7 +72,6 @@ members = [
     "crates/history",
     "crates/worker",
     "crates/worker-macros",
-    "crates/net",
 
     "examples/markdown",
     "examples/clock",

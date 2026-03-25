@@ -86,6 +86,41 @@ impl fmt::Debug for EventSourceSubscription {
     }
 }
 
+/// Builder for creating an [`EventSource`] with custom options.
+#[derive(Debug, Default, Copy, Clone)]
+pub struct EventSourceBuilder {
+    with_credentials: bool,
+}
+
+impl EventSourceBuilder {
+    /// Create a new builder with default options.
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Set whether cross-origin requests should include credentials.
+    ///
+    /// When `true`, cookies, authorization headers, or TLS client certificates
+    /// will be included in cross-origin requests.
+    ///
+    /// Default is `false`.
+    pub fn with_credentials(mut self, value: bool) -> Self {
+        self.with_credentials = value;
+        self
+    }
+
+    /// Build the EventSource and connect to the given URL.
+    pub fn build(self, url: &str) -> Result<EventSource, JsError> {
+        let mut init = web_sys::EventSourceInit::new();
+        init.with_credentials(self.with_credentials);
+
+        let es = web_sys::EventSource::new_with_event_source_init_dict(url, &init)
+            .map_err(js_to_js_error)?;
+
+        Ok(EventSource { es })
+    }
+}
+
 impl EventSource {
     /// Establish an EventSource.
     ///
@@ -96,9 +131,7 @@ impl EventSource {
     /// [MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/EventSource/EventSource#exceptions_thrown)
     /// to learn more.
     pub fn new(url: &str) -> Result<Self, JsError> {
-        let es = web_sys::EventSource::new(url).map_err(js_to_js_error)?;
-
-        Ok(Self { es })
+        EventSourceBuilder::new().build(url)
     }
 
     /// Subscribes to listening for a specific type of event.
