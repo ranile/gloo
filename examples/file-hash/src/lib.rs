@@ -50,7 +50,7 @@ impl Worker for HashWorker {
 
             // We assume that this file is big and cannot be loaded into the memory in one chunk.
             // So we process this as a stream.
-            let mut s = ReadableStream::from_raw(msg.file.stream().unchecked_into()).into_stream();
+            let mut s = ReadableStream::from_raw(msg.file.stream()).into_stream();
 
             while let Some(chunk) = s.try_next().await.unwrap() {
                 hasher.update(chunk.unchecked_into::<Uint8Array>().to_vec());
