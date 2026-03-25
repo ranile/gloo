@@ -135,10 +135,10 @@ jobs:
 
       - name: Install wasmtime
         run: |
-          wget https://github.com/bytecodealliance/wasmtime/releases/download/v33.0.2/wasmtime-v33.0.2-x86_64-linux.tar.xz
-          tar xf wasmtime-v33.0.2-x86_64-linux.tar.xz
-          mv wasmtime-v33.0.2-x86_64-linux/wasmtime ~/wasmtime
-          rm -rf wasmtime-v33.0.2-x86_64-linux.tar.xz wasmtime-v33.0.2-x86_64-linux
+          wget https://github.com/bytecodealliance/wasmtime/releases/download/v43.0.0/wasmtime-v43.0.0-x86_64-linux.tar.xz
+          tar xf wasmtime-v43.0.0-x86_64-linux.tar.xz
+          mv wasmtime-v43.0.0-x86_64-linux/wasmtime ~/wasmtime
+          rm -rf wasmtime-v43.0.0-x86_64-linux.tar.xz wasmtime-v43.0.0-x86_64-linux
           chmod +x ~/wasmtime
 
       - uses: actions/cache@v4
