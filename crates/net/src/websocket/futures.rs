@@ -186,12 +186,12 @@ impl WebSocket {
             }) as Box<dyn FnMut(web_sys::CloseEvent)>)
         };
 
-        let add_event_listerner_options = web_sys::AddEventListenerOptions::new();
-        add_event_listerner_options.set_once(true);
+        let add_event_listener_options = web_sys::AddEventListenerOptions::new();
+        add_event_listener_options.set_once(true);
         ws.add_event_listener_with_callback_and_add_event_listener_options(
             "close",
             close_callback.as_ref().unchecked_ref(),
-            &add_event_listerner_options,
+            &add_event_listener_options,
         )
         .map_err(js_to_js_error)?;
 
