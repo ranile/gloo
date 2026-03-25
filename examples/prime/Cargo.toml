@@ -9,7 +9,7 @@ rust-version = { workspace = true }
 [dependencies]
 futures = "0.3.32"
 gloo = { path = "../..", features = ["futures"] }
-primes = "0.3.0"
+primes = "0.4.0"
 wasm-bindgen-futures = { workspace = true }
 console_error_panic_hook = "0.1.7"
 serde = { version = "1.0.228", features = ["derive"] }
