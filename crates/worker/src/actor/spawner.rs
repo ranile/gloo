@@ -1,8 +1,7 @@
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
 use std::marker::PhantomData;
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
 
 use gloo_utils::window;
 use js_sys::Array;
@@ -10,12 +9,11 @@ use serde::de::Deserialize;
 use serde::ser::Serialize;
 use web_sys::{Blob, BlobPropertyBag, Url, WorkerOptions, WorkerType};
 
-use super::bridge::{CallbackMap, WorkerBridge};
+use super::bridge::{WorkerBridge, WorkerBridgeInner};
 use super::handler_id::HandlerId;
-use super::messages::FromWorker;
-use super::native_worker::{DedicatedWorker, NativeWorkerExt};
+use super::native_worker::DedicatedWorker;
 use super::traits::Worker;
-use super::{Callback, Shared};
+use super::Callback;
 use crate::codec::{Bincode, Codec};
 
 /// A spawner to create workers.
@@ -129,7 +127,6 @@ where
         W::Input: Serialize + for<'de> Deserialize<'de>,
         W::Output: Serialize + for<'de> Deserialize<'de>,
     {
-        let pending_queue = Rc::new(RefCell::new(Some(Vec::new())));
         let handler_id = HandlerId::new();
         let mut callbacks = HashMap::new();
 
@@ -137,45 +134,9 @@ where
             callbacks.insert(handler_id, m);
         }
 
-        let callbacks: Shared<CallbackMap<W>> = Rc::new(RefCell::new(callbacks));
+        let inner = WorkerBridgeInner::<W>::new::<CODEC>(worker, callbacks);
 
-        let handler = {
-            let pending_queue = pending_queue.clone();
-            let callbacks = callbacks.clone();
-
-            let worker = worker.clone();
-
-            move |msg: FromWorker<W>| match msg {
-                FromWorker::WorkerLoaded => {
-                    if let Some(pending_queue) = pending_queue.borrow_mut().take() {
-                        for to_worker in pending_queue.into_iter() {
-                            worker.post_packed_message::<_, CODEC>(to_worker);
-                        }
-                    }
-                }
-                FromWorker::ProcessOutput(id, output) => {
-                    let mut callbacks = callbacks.borrow_mut();
-
-                    if let Some(m) = callbacks.get(&id) {
-                        if let Some(m) = Weak::upgrade(m) {
-                            m(output);
-                        } else {
-                            callbacks.remove(&id);
-                        }
-                    }
-                }
-            }
-        };
-
-        worker.set_on_packed_message::<_, CODEC, _>(handler);
-
-        WorkerBridge::<W>::new::<CODEC>(
-            handler_id,
-            worker,
-            pending_queue,
-            callbacks,
-            self.callback.clone(),
-        )
+        WorkerBridge::<W>::new(handler_id, inner, self.callback.clone())
     }
 
     fn create_worker(&self, path: &str) -> Option<DedicatedWorker> {
