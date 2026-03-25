@@ -16,7 +16,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { version = "1", features = ["full"] }
-warp = "0.3"
+warp = { version = "0.4", features = ["server"] }
 
 [dev-dependencies]
 wasm-bindgen-test = { workspace = true }
