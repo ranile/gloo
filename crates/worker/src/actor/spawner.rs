@@ -198,10 +198,9 @@ where
                 format!(r#"importScripts("{js_shim_url}");wasm_bindgen("{wasm_url}");"#)
             };
             array.push(&shim.into());
-            let blob = Blob::new_with_str_sequence_and_options(
-                &array,
-                BlobPropertyBag::new().type_("application/javascript"),
-            )
+            let opts = BlobPropertyBag::new();
+            opts.set_type("application/javascript");
+            let blob = Blob::new_with_str_sequence_and_options(&array, &opts)
             .unwrap();
             let url = Url::create_object_url_with_blob(&blob).unwrap();
             std::borrow::Cow::Owned(url)
@@ -209,8 +208,8 @@ where
         let path = path.as_ref();
 
         if self.as_module {
-            let mut options = WorkerOptions::new();
-            options.type_(WorkerType::Module);
+            let options = WorkerOptions::new();
+            options.set_type(WorkerType::Module);
             DedicatedWorker::new_with_options(path, &options).ok()
         } else {
             DedicatedWorker::new(path).ok()
