@@ -2,7 +2,7 @@
 //! with Rust and WebAssembly.
 
 #![deny(missing_docs, missing_debug_implementations)]
-#![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 // Re-exports of toolkit crates.
 #[cfg(feature = "console")]
