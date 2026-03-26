@@ -136,6 +136,10 @@
 
 ## `gloo-history`
 
+### Version 0.4.0
+
+- **Breaking:** Serialize history state into `history.state` instead of in-memory map (#541) by @ranile
+
 ### Version 0.3.0
 
 - Update MSRV to 1.82 (#505) by @martinfrances107
