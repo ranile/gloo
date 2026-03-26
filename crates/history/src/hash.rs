@@ -63,7 +63,7 @@ impl History for HashHistory {
 
     fn push_with_state<'a, T>(&self, route: impl Into<Cow<'a, str>>, state: T)
     where
-        T: 'static,
+        T: serde::Serialize + 'static,
     {
         let route = route.into();
 
@@ -78,7 +78,7 @@ impl History for HashHistory {
 
     fn replace_with_state<'a, T>(&self, route: impl Into<Cow<'a, str>>, state: T)
     where
-        T: 'static,
+        T: serde::Serialize + 'static,
     {
         let route = route.into();
 
@@ -143,7 +143,7 @@ impl History for HashHistory {
     ) -> HistoryResult<(), Q::Error>
     where
         Q: ToQuery,
-        T: 'static,
+        T: serde::Serialize + 'static,
     {
         let route = route.into();
 
@@ -169,7 +169,7 @@ impl History for HashHistory {
     ) -> HistoryResult<(), Q::Error>
     where
         Q: ToQuery,
-        T: 'static,
+        T: serde::Serialize + 'static,
     {
         let route = route.into();
 

@@ -1,5 +1,7 @@
 use std::borrow::Cow;
 
+use serde::Serialize;
+
 use crate::listener::HistoryListener;
 use crate::location::Location;
 #[cfg(feature = "query")]
@@ -44,12 +46,12 @@ pub trait History: Clone + PartialEq {
     /// Pushes a route entry with state.
     fn push_with_state<'a, T>(&self, route: impl Into<Cow<'a, str>>, state: T)
     where
-        T: 'static;
+        T: Serialize + 'static;
 
     /// Replaces the current history entry with provided route and state.
     fn replace_with_state<'a, T>(&self, route: impl Into<Cow<'a, str>>, state: T)
     where
-        T: 'static;
+        T: Serialize + 'static;
 
     /// Same as `.push()` but affix the queries to the end of the route.
     #[cfg(feature = "query")]
@@ -81,7 +83,7 @@ pub trait History: Clone + PartialEq {
     ) -> HistoryResult<(), Q::Error>
     where
         Q: ToQuery,
-        T: 'static;
+        T: Serialize + 'static;
 
     /// Same as `.replace_with_state()` but affix the queries to the end of the route.
     #[cfg(feature = "query")]
@@ -93,7 +95,7 @@ pub trait History: Clone + PartialEq {
     ) -> HistoryResult<(), Q::Error>
     where
         Q: ToQuery,
-        T: 'static;
+        T: Serialize + 'static;
 
     /// Creates a Listener that will be notified when current state changes.
     ///
