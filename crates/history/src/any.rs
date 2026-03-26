@@ -59,7 +59,7 @@ impl History for AnyHistory {
 
     fn push_with_state<'a, T>(&self, route: impl Into<Cow<'a, str>>, state: T)
     where
-        T: 'static,
+        T: serde::Serialize + 'static,
     {
         match self {
             Self::Browser(m) => m.push_with_state(route, state),
@@ -71,7 +71,7 @@ impl History for AnyHistory {
 
     fn replace_with_state<'a, T>(&self, route: impl Into<Cow<'a, str>>, state: T)
     where
-        T: 'static,
+        T: serde::Serialize + 'static,
     {
         match self {
             Self::Browser(m) => m.replace_with_state(route, state),
@@ -123,7 +123,7 @@ impl History for AnyHistory {
     ) -> HistoryResult<(), Q::Error>
     where
         Q: ToQuery,
-        T: 'static,
+        T: serde::Serialize + 'static,
     {
         match self {
             Self::Browser(m) => m.push_with_query_and_state(route, query, state),
@@ -142,7 +142,7 @@ impl History for AnyHistory {
     ) -> HistoryResult<(), Q::Error>
     where
         Q: ToQuery,
-        T: 'static,
+        T: serde::Serialize + 'static,
     {
         match self {
             Self::Browser(m) => m.replace_with_query_and_state(route, query, state),

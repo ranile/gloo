@@ -1,10 +1,12 @@
-use std::any::Any;
 use std::borrow::Cow;
 use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::fmt;
 use std::rc::Rc;
+
+use serde::Serialize;
+use wasm_bindgen::UnwrapThrowExt;
 
 use crate::history::History;
 use crate::listener::HistoryListener;
@@ -162,7 +164,7 @@ impl History for MemoryHistory {
 
     fn push_with_state<'a, T>(&self, route: impl Into<Cow<'a, str>>, state: T)
     where
-        T: 'static,
+        T: Serialize + 'static,
     {
         let route = route.into();
 
@@ -174,7 +176,9 @@ impl History for MemoryHistory {
             path: route.to_string().into(),
             query_str: "".to_string().into(),
             hash: "".to_string().into(),
-            state: Some(Rc::new(state) as Rc<dyn Any>),
+            state: Some(
+                serde_wasm_bindgen::to_value(&state).expect_throw("failed to serialize state."),
+            ),
             id: Some(get_id()),
         };
 
@@ -185,7 +189,7 @@ impl History for MemoryHistory {
 
     fn replace_with_state<'a, T>(&self, route: impl Into<Cow<'a, str>>, state: T)
     where
-        T: 'static,
+        T: Serialize + 'static,
     {
         let route = route.into();
 
@@ -197,7 +201,9 @@ impl History for MemoryHistory {
             path: route.to_string().into(),
             query_str: "".to_string().into(),
             hash: "".to_string().into(),
-            state: Some(Rc::new(state) as Rc<dyn Any>),
+            state: Some(
+                serde_wasm_bindgen::to_value(&state).expect_throw("failed to serialize state."),
+            ),
             id: Some(get_id()),
         };
 
@@ -276,7 +282,7 @@ impl History for MemoryHistory {
     ) -> HistoryResult<(), Q::Error>
     where
         Q: ToQuery,
-        T: 'static,
+        T: Serialize + 'static,
     {
         let query = query.to_query()?;
         let route = route.into();
@@ -289,7 +295,9 @@ impl History for MemoryHistory {
             path: route.to_string().into(),
             query_str: format!("?{query}").into(),
             hash: "".to_string().into(),
-            state: Some(Rc::new(state) as Rc<dyn Any>),
+            state: Some(
+                serde_wasm_bindgen::to_value(&state).expect_throw("failed to serialize state."),
+            ),
             id: Some(get_id()),
         };
 
@@ -309,7 +317,7 @@ impl History for MemoryHistory {
     ) -> HistoryResult<(), Q::Error>
     where
         Q: ToQuery,
-        T: 'static,
+        T: Serialize + 'static,
     {
         let query = query.to_query()?;
         let route = route.into();
@@ -322,7 +330,9 @@ impl History for MemoryHistory {
             path: route.to_string().into(),
             query_str: format!("?{query}").into(),
             hash: "".to_string().into(),
-            state: Some(Rc::new(state) as Rc<dyn Any>),
+            state: Some(
+                serde_wasm_bindgen::to_value(&state).expect_throw("failed to serialize state."),
+            ),
             id: Some(get_id()),
         };
 
