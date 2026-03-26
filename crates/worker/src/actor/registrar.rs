@@ -9,10 +9,10 @@ use super::messages::{FromWorker, ToWorker};
 use super::native_worker::{DedicatedWorker, NativeWorkerExt, WorkerSelf};
 use super::scope::WorkerScope;
 use super::traits::Worker;
-use crate::codec::{Bincode, Codec};
+use crate::codec::{Codec, Postcard};
 
 /// A Worker Registrar.
-pub struct WorkerRegistrar<W, CODEC = Bincode>
+pub struct WorkerRegistrar<W, CODEC = Postcard>
 where
     W: Worker,
     CODEC: Codec,

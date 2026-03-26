@@ -5,11 +5,11 @@ use super::bridge::OneshotBridge;
 use super::traits::Oneshot;
 use super::worker::OneshotWorker;
 use crate::actor::WorkerSpawner;
-use crate::codec::{Bincode, Codec};
+use crate::codec::{Codec, Postcard};
 
 /// A spawner to create oneshot workers.
 #[derive(Debug, Default)]
-pub struct OneshotSpawner<N, CODEC = Bincode>
+pub struct OneshotSpawner<N, CODEC = Postcard>
 where
     N: Oneshot + 'static,
     CODEC: Codec,

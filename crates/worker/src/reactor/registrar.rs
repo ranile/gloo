@@ -7,11 +7,11 @@ use super::scope::ReactorScoped;
 use super::traits::Reactor;
 use super::worker::ReactorWorker;
 use crate::actor::WorkerRegistrar;
-use crate::codec::{Bincode, Codec};
+use crate::codec::{Codec, Postcard};
 use crate::traits::Registrable;
 
 /// A registrar for reactor workers.
-pub struct ReactorRegistrar<R, CODEC = Bincode>
+pub struct ReactorRegistrar<R, CODEC = Postcard>
 where
     R: Reactor + 'static,
     CODEC: Codec + 'static,

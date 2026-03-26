@@ -6,11 +6,11 @@ use super::scope::ReactorScoped;
 use super::traits::Reactor;
 use super::worker::ReactorWorker;
 use crate::actor::WorkerSpawner;
-use crate::codec::{Bincode, Codec};
+use crate::codec::{Codec, Postcard};
 
 /// A spawner to create oneshot workers.
 #[derive(Debug, Default)]
-pub struct ReactorSpawner<R, CODEC = Bincode>
+pub struct ReactorSpawner<R, CODEC = Postcard>
 where
     R: Reactor + 'static,
     CODEC: Codec,

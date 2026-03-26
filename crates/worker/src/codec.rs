@@ -15,16 +15,16 @@ pub trait Codec {
         O: for<'de> Deserialize<'de>;
 }
 
-/// Default message encoding with [bincode].
+/// Default message encoding with [postcard].
 #[derive(Debug)]
-pub struct Bincode;
+pub struct Postcard;
 
-impl Codec for Bincode {
+impl Codec for Postcard {
     fn encode<I>(input: I) -> JsValue
     where
         I: Serialize,
     {
-        let buf = bincode::serialize(&input).expect("can't serialize a worker message");
+        let buf = postcard::to_stdvec(&input).expect("can't serialize a worker message");
         Uint8Array::from(buf.as_slice()).into()
     }
 
@@ -33,6 +33,6 @@ impl Codec for Bincode {
         O: for<'de> Deserialize<'de>,
     {
         let data = Uint8Array::from(input).to_vec();
-        bincode::deserialize(&data).expect("can't deserialize a worker message")
+        postcard::from_bytes(&data).expect("can't deserialize a worker message")
     }
 }

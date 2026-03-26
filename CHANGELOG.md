@@ -422,6 +422,10 @@
 
 ## `worker`
 
+### Version 0.7.0
+
+- **BREAKING:** Replace `Bincode` with `Postcard` (#540) by @ranile
+
 ### Version 0.6.0
 
 - Add option to spawn workers as a module; default worker type is now ES module (#421) by @JonasAlaif

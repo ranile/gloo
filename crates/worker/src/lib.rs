@@ -17,7 +17,7 @@
 //! ### Overhead
 //!
 //! Gloo Workers use web workers. They incur a serialization overhead on the
-//! messages they send and receive. Bridges use [bincode](https://github.com/servo/bincode)
+//! messages they send and receive. Bridges use [postcard](https://github.com/jamesmunns/postcard)
 //! by default to communicate with workers, so the cost is substantially higher
 //! than just calling a function.
 //!
@@ -60,5 +60,5 @@ pub mod reactor;
 mod traits;
 
 pub use actor::*;
-pub use codec::{Bincode, Codec};
+pub use codec::{Codec, Postcard};
 pub use traits::*;

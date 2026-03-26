@@ -16,11 +16,11 @@ use super::messages::FromWorker;
 use super::native_worker::{DedicatedWorker, NativeWorkerExt};
 use super::traits::Worker;
 use super::{Callback, Shared};
-use crate::codec::{Bincode, Codec};
+use crate::codec::{Codec, Postcard};
 
 /// A spawner to create workers.
 #[derive(Clone)]
-pub struct WorkerSpawner<W, CODEC = Bincode>
+pub struct WorkerSpawner<W, CODEC = Postcard>
 where
     W: Worker,
     CODEC: Codec,

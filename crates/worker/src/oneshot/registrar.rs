@@ -6,11 +6,11 @@ use serde::ser::Serialize;
 use super::traits::Oneshot;
 use super::worker::OneshotWorker;
 use crate::actor::WorkerRegistrar;
-use crate::codec::{Bincode, Codec};
+use crate::codec::{Codec, Postcard};
 use crate::traits::Registrable;
 
 /// A registrar for oneshot workers.
-pub struct OneshotRegistrar<T, CODEC = Bincode>
+pub struct OneshotRegistrar<T, CODEC = Postcard>
 where
     T: Oneshot + 'static,
     CODEC: Codec + 'static,
