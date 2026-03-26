@@ -1,4 +1,5 @@
 /target
+tools/what-if-i-bump/target
 **/*.rs.bk
 
 examples/*/dist
