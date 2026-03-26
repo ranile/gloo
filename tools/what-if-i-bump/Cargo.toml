@@ -1,0 +1,7 @@
+[package]
+name = "what-if-i-bump"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+toml = "1.1"
