@@ -317,4 +317,52 @@ mod tests {
             Some(Err(EventSourceError::ConnectionError))
         );
     }
+
+    #[wasm_bindgen_test]
+    async fn drop_eventsource_keeps_subscriptions_alive() {
+        let sse_echo_server_url =
+            option_env!("SSE_ECHO_SERVER_URL").expect("Did you set SSE_ECHO_SERVER_URL?");
+
+        let mut es = EventSource::new(sse_echo_server_url).unwrap();
+        let mut servers = es.subscribe("server").unwrap();
+
+        drop(es);
+
+        assert_eq!(servers.next().await.unwrap().unwrap().0, "server");
+    }
+
+    #[wasm_bindgen_test]
+    async fn close_signals_subscribers() {
+        let sse_echo_server_url =
+            option_env!("SSE_ECHO_SERVER_URL").expect("Did you set SSE_ECHO_SERVER_URL?");
+
+        let mut es = EventSource::new(sse_echo_server_url).unwrap();
+        let mut servers = es.subscribe("server").unwrap();
+
+        es.close();
+
+        assert_eq!(
+            servers.next().await,
+            Some(Err(EventSourceError::ConnectionError))
+        );
+    }
+
+    #[wasm_bindgen_test]
+    async fn connection_closes_after_all_subscriptions_dropped() {
+        let sse_echo_server_url =
+            option_env!("SSE_ECHO_SERVER_URL").expect("Did you set SSE_ECHO_SERVER_URL?");
+
+        let mut es = EventSource::new(sse_echo_server_url).unwrap();
+        let mut servers = es.subscribe("server").unwrap();
+        let raw = es.es.0.clone();
+
+        drop(es);
+
+        assert_eq!(servers.next().await.unwrap().unwrap().0, "server");
+        assert_ne!(raw.ready_state(), web_sys::EventSource::CLOSED);
+
+        drop(servers);
+
+        assert_eq!(raw.ready_state(), web_sys::EventSource::CLOSED);
+    }
 }
