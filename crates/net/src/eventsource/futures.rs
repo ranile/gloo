@@ -25,6 +25,10 @@
 //! let stream_1 = es.subscribe("some-event-type").unwrap();
 //! let stream_2 = es.subscribe("another-event-type").unwrap();
 //!
+//! // The EventSource can be dropped while subscriptions are still active.
+//! // The underlying connection stays alive as long as any subscription exists.
+//! drop(es);
+//!
 //! spawn_local(async move {
 //!     let mut all_streams = stream::select(stream_1, stream_2);
 //!     while let Some(Ok((event_type, msg))) = all_streams.next().await {
@@ -43,22 +47,41 @@ use pin_project::{pin_project, pinned_drop};
 use std::fmt;
 use std::fmt::Formatter;
 use std::pin::Pin;
+use std::rc::Rc;
 use std::task::{Context, Poll};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::MessageEvent;
 
-/// Wrapper around browser's EventSource API. Dropping
-/// this will close the underlying event source.
+/// Wrapper around [`web_sys::EventSource`] that closes the underlying connection when the
+/// last reference is dropped
+struct EventSourceInner(web_sys::EventSource);
+
+impl Drop for EventSourceInner {
+    fn drop(&mut self) {
+        self.0.close();
+    }
+}
+
+/// Wrapper around browser's EventSource API.
+///
+/// ## Drop behavior
+///
+/// The underlying connection is shared with any [`EventSourceSubscription`]s
+/// created via [`subscribe`](EventSource::subscribe). Dropping the
+/// `EventSource` alone will **not** close the connection if subscriptions
+/// still exist. The connection is only closed when *all* holders
+/// (including subscriptions) are dropped. Call [`close`](EventSource::close)
+/// to shut down the connection immediately.
 pub struct EventSource {
-    es: web_sys::EventSource,
+    es: Rc<EventSourceInner>,
 }
 
 impl fmt::Debug for EventSource {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("EventSource")
-            .field("url", &self.es.url())
-            .field("with_credentials", &self.es.with_credentials())
+            .field("url", &self.es.0.url())
+            .field("with_credentials", &self.es.0.with_credentials())
             .field("ready_state", &self.state())
             .finish_non_exhaustive()
     }
@@ -69,7 +92,7 @@ impl fmt::Debug for EventSource {
 pub struct EventSourceSubscription {
     #[allow(clippy::type_complexity)]
     error_callback: Closure<dyn FnMut(web_sys::Event)>,
-    es: web_sys::EventSource,
+    es: Rc<EventSourceInner>,
     event_type: String,
     message_callback: Closure<dyn FnMut(MessageEvent)>,
     #[pin]
@@ -79,7 +102,7 @@ pub struct EventSourceSubscription {
 impl fmt::Debug for EventSourceSubscription {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("EventSourceSubscription")
-            .field("event_source", &self.es)
+            .field("event_source", &self.es.0)
             .field("event_type", &self.event_type)
             .finish_non_exhaustive()
     }
@@ -116,7 +139,9 @@ impl EventSourceBuilder {
         let es = web_sys::EventSource::new_with_event_source_init_dict(url, &init)
             .map_err(js_to_js_error)?;
 
-        Ok(EventSource { es })
+        Ok(EventSource {
+            es: Rc::new(EventSourceInner(es)),
+        })
     }
 }
 
@@ -159,6 +184,7 @@ impl EventSource {
         };
 
         self.es
+            .0
             .add_event_listener_with_callback(
                 &event_type,
                 message_callback.as_ref().unchecked_ref(),
@@ -179,12 +205,13 @@ impl EventSource {
         };
 
         self.es
+            .0
             .add_event_listener_with_callback("error", error_callback.as_ref().unchecked_ref())
             .map_err(js_to_js_error)?;
 
         Ok(EventSourceSubscription {
             error_callback,
-            es: self.es.clone(),
+            es: Rc::clone(&self.es),
             event_type,
             message_callback,
             message_receiver,
@@ -193,36 +220,29 @@ impl EventSource {
 
     /// Closes the EventSource.
     ///
+    /// This immediately closes the connection and dispatches an error event to
+    /// all active subscribers, causing their streams to yield
+    /// [`Err(ConnectionError)`](EventSourceError::ConnectionError).
+    ///
     /// See the [MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/EventSource/close#parameters)
-    /// to learn about this function
-    pub fn close(mut self) {
-        self.close_and_notify();
-    }
-
-    fn close_and_notify(&mut self) {
-        self.es.close();
-        // Fire an error event to cause all subscriber
-        // streams to close down.
+    /// to learn about this function.
+    pub fn close(self) {
+        self.es.0.close();
+        // Fire an error event so active subscriber streams observe the closure.
         if let Ok(event) = web_sys::Event::new("error") {
-            let _ = self.es.dispatch_event(&event);
+            let _ = self.es.0.dispatch_event(&event);
         }
     }
 
     /// The current state of the EventSource.
     pub fn state(&self) -> State {
-        let ready_state = self.es.ready_state();
+        let ready_state = self.es.0.ready_state();
         match ready_state {
             0 => State::Connecting,
             1 => State::Open,
             2 => State::Closed,
             _ => unreachable!(),
         }
-    }
-}
-
-impl Drop for EventSource {
-    fn drop(&mut self) {
-        self.close_and_notify();
     }
 }
 
@@ -252,12 +272,12 @@ impl Stream for EventSourceSubscription {
 #[pinned_drop]
 impl PinnedDrop for EventSourceSubscription {
     fn drop(self: Pin<&mut Self>) {
-        let _ = self.es.remove_event_listener_with_callback(
+        let _ = self.es.0.remove_event_listener_with_callback(
             "error",
             self.error_callback.as_ref().unchecked_ref(),
         );
 
-        let _ = self.es.remove_event_listener_with_callback(
+        let _ = self.es.0.remove_event_listener_with_callback(
             &self.event_type,
             self.message_callback.as_ref().unchecked_ref(),
         );
@@ -296,5 +316,53 @@ mod tests {
             servers.next().await,
             Some(Err(EventSourceError::ConnectionError))
         );
+    }
+
+    #[wasm_bindgen_test]
+    async fn drop_eventsource_keeps_subscriptions_alive() {
+        let sse_echo_server_url =
+            option_env!("SSE_ECHO_SERVER_URL").expect("Did you set SSE_ECHO_SERVER_URL?");
+
+        let mut es = EventSource::new(sse_echo_server_url).unwrap();
+        let mut servers = es.subscribe("server").unwrap();
+
+        drop(es);
+
+        assert_eq!(servers.next().await.unwrap().unwrap().0, "server");
+    }
+
+    #[wasm_bindgen_test]
+    async fn close_signals_subscribers() {
+        let sse_echo_server_url =
+            option_env!("SSE_ECHO_SERVER_URL").expect("Did you set SSE_ECHO_SERVER_URL?");
+
+        let mut es = EventSource::new(sse_echo_server_url).unwrap();
+        let mut servers = es.subscribe("server").unwrap();
+
+        es.close();
+
+        assert_eq!(
+            servers.next().await,
+            Some(Err(EventSourceError::ConnectionError))
+        );
+    }
+
+    #[wasm_bindgen_test]
+    async fn connection_closes_after_all_subscriptions_dropped() {
+        let sse_echo_server_url =
+            option_env!("SSE_ECHO_SERVER_URL").expect("Did you set SSE_ECHO_SERVER_URL?");
+
+        let mut es = EventSource::new(sse_echo_server_url).unwrap();
+        let mut servers = es.subscribe("server").unwrap();
+        let raw = es.es.0.clone();
+
+        drop(es);
+
+        assert_eq!(servers.next().await.unwrap().unwrap().0, "server");
+        assert_ne!(raw.ready_state(), web_sys::EventSource::CLOSED);
+
+        drop(servers);
+
+        assert_eq!(raw.ready_state(), web_sys::EventSource::CLOSED);
     }
 }
