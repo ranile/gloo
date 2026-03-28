@@ -1,5 +1,7 @@
-use std::any::Any;
 use std::rc::Rc;
+
+use serde::de::DeserializeOwned;
+use wasm_bindgen::JsValue;
 
 #[cfg(feature = "query")]
 use crate::{error::HistoryResult, query::FromQuery};
@@ -13,7 +15,7 @@ pub struct Location {
     pub(crate) path: Rc<String>,
     pub(crate) query_str: Rc<String>,
     pub(crate) hash: Rc<String>,
-    pub(crate) state: Option<Rc<dyn Any>>,
+    pub(crate) state: Option<JsValue>,
     pub(crate) id: Option<u32>,
 }
 
@@ -56,12 +58,16 @@ impl Location {
 
     /// Returns an Rc'ed state of current location.
     ///
-    /// Returns [`None`] if state is not created by `gloo::history`, or state fails to downcast.
+    /// Returns [`None`] if state is not created by `gloo::history`, or state fails to
+    /// deserialize.
     pub fn state<T>(&self) -> Option<Rc<T>>
     where
-        T: 'static,
+        T: DeserializeOwned + 'static,
     {
-        self.state.clone().and_then(|m| m.downcast().ok())
+        self.state
+            .as_ref()
+            .and_then(|js| serde_wasm_bindgen::from_value::<T>(js.clone()).ok())
+            .map(Rc::new)
     }
 }
 

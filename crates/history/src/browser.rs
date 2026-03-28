@@ -1,15 +1,16 @@
-use std::{any::Any, borrow::Cow, cell::RefCell, fmt, rc::Rc};
+use std::{borrow::Cow, cell::RefCell, fmt, rc::Rc};
 
 use gloo_events::EventListener;
 use gloo_utils::window;
+use serde::Serialize;
 use wasm_bindgen::{JsValue, UnwrapThrowExt};
 use web_sys::Url;
 
 use crate::history::History;
 use crate::listener::HistoryListener;
 use crate::location::Location;
-use crate::state::{HistoryState, StateMap};
-use crate::utils::WeakCallback;
+use crate::state::{compose_state, extract_state};
+use crate::utils::{get_id, WeakCallback};
 #[cfg(feature = "query")]
 use crate::{error::HistoryResult, query::ToQuery};
 
@@ -18,7 +19,6 @@ use crate::{error::HistoryResult, query::ToQuery};
 #[derive(Clone)]
 pub struct BrowserHistory {
     inner: web_sys::History,
-    states: Rc<RefCell<StateMap>>,
     callbacks: Rc<RefCell<Vec<WeakCallback>>>,
 }
 
@@ -48,8 +48,9 @@ impl History for BrowserHistory {
 
     fn push<'a>(&self, route: impl Into<Cow<'a, str>>) {
         let url = route.into();
+        let state = Self::create_state(None);
         self.inner
-            .push_state_with_url(&Self::create_history_state().1, "", Some(&url))
+            .push_state_with_url(&state, "", Some(&url))
             .expect_throw("failed to push state.");
 
         self.notify_callbacks();
@@ -57,8 +58,9 @@ impl History for BrowserHistory {
 
     fn replace<'a>(&self, route: impl Into<Cow<'a, str>>) {
         let url = route.into();
+        let state = Self::create_state(None);
         self.inner
-            .replace_state_with_url(&Self::create_history_state().1, "", Some(&url))
+            .replace_state_with_url(&state, "", Some(&url))
             .expect_throw("failed to replace history.");
 
         self.notify_callbacks();
@@ -66,39 +68,33 @@ impl History for BrowserHistory {
 
     fn push_with_state<'a, T>(&self, route: impl Into<Cow<'a, str>>, state: T)
     where
-        T: 'static,
+        T: Serialize + 'static,
     {
         let url = route.into();
-
-        let (id, history_state) = Self::create_history_state();
-
-        let mut states = self.states.borrow_mut();
-        states.insert(id, Rc::new(state) as Rc<dyn Any>);
+        let js_state =
+            serde_wasm_bindgen::to_value(&state).expect_throw("failed to serialize state.");
+        let history_state = Self::create_state(Some(js_state));
 
         self.inner
             .push_state_with_url(&history_state, "", Some(&url))
             .expect_throw("failed to push state.");
 
-        drop(states);
         self.notify_callbacks();
     }
 
     fn replace_with_state<'a, T>(&self, route: impl Into<Cow<'a, str>>, state: T)
     where
-        T: 'static,
+        T: Serialize + 'static,
     {
         let url = route.into();
-
-        let (id, history_state) = Self::create_history_state();
-
-        let mut states = self.states.borrow_mut();
-        states.insert(id, Rc::new(state) as Rc<dyn Any>);
+        let js_state =
+            serde_wasm_bindgen::to_value(&state).expect_throw("failed to serialize state.");
+        let history_state = Self::create_state(Some(js_state));
 
         self.inner
             .replace_state_with_url(&history_state, "", Some(&url))
             .expect_throw("failed to replace state.");
 
-        drop(states);
         self.notify_callbacks();
     }
 
@@ -115,9 +111,10 @@ impl History for BrowserHistory {
         let query = query.to_query()?;
 
         let url = Self::combine_url(&route, &query);
+        let state = Self::create_state(None);
 
         self.inner
-            .push_state_with_url(&Self::create_history_state().1, "", Some(&url))
+            .push_state_with_url(&state, "", Some(&url))
             .expect_throw("failed to push history.");
 
         self.notify_callbacks();
@@ -137,9 +134,10 @@ impl History for BrowserHistory {
         let query = query.to_query()?;
 
         let url = Self::combine_url(&route, &query);
+        let state = Self::create_state(None);
 
         self.inner
-            .replace_state_with_url(&Self::create_history_state().1, "", Some(&url))
+            .replace_state_with_url(&state, "", Some(&url))
             .expect_throw("failed to replace history.");
 
         self.notify_callbacks();
@@ -155,12 +153,11 @@ impl History for BrowserHistory {
     ) -> HistoryResult<(), Q::Error>
     where
         Q: ToQuery,
-        T: 'static,
+        T: Serialize + 'static,
     {
-        let (id, history_state) = Self::create_history_state();
-
-        let mut states = self.states.borrow_mut();
-        states.insert(id, Rc::new(state) as Rc<dyn Any>);
+        let js_state =
+            serde_wasm_bindgen::to_value(&state).expect_throw("failed to serialize state.");
+        let history_state = Self::create_state(Some(js_state));
 
         let route = route.into();
         let query = query.to_query()?;
@@ -171,7 +168,6 @@ impl History for BrowserHistory {
             .push_state_with_url(&history_state, "", Some(&url))
             .expect_throw("failed to push history.");
 
-        drop(states);
         self.notify_callbacks();
         Ok(())
     }
@@ -185,12 +181,11 @@ impl History for BrowserHistory {
     ) -> HistoryResult<(), Q::Error>
     where
         Q: ToQuery,
-        T: 'static,
+        T: Serialize + 'static,
     {
-        let (id, history_state) = Self::create_history_state();
-
-        let mut states = self.states.borrow_mut();
-        states.insert(id, Rc::new(state) as Rc<dyn Any>);
+        let js_state =
+            serde_wasm_bindgen::to_value(&state).expect_throw("failed to serialize state.");
+        let history_state = Self::create_state(Some(js_state));
 
         let route = route.into();
         let query = query.to_query()?;
@@ -201,7 +196,6 @@ impl History for BrowserHistory {
             .replace_state_with_url(&history_state, "", Some(&url))
             .expect_throw("failed to replace history.");
 
-        drop(states);
         self.notify_callbacks();
         Ok(())
     }
@@ -221,12 +215,8 @@ impl History for BrowserHistory {
     fn location(&self) -> Location {
         let loc = window().location();
 
-        let history_state = self.inner.state().expect_throw("failed to get state");
-        let history_state = serde_wasm_bindgen::from_value::<HistoryState>(history_state).ok();
-
-        let id = history_state.map(|m| m.id());
-
-        let states = self.states.borrow();
+        let raw_state = self.inner.state().expect_throw("failed to get state");
+        let (id, user_state) = extract_state(raw_state);
 
         Location {
             path: loc.pathname().expect_throw("failed to get pathname").into(),
@@ -238,7 +228,7 @@ impl History for BrowserHistory {
                 .hash()
                 .expect_throw("failed to get location hash.")
                 .into(),
-            state: id.and_then(|m| states.get(&m).cloned()),
+            state: user_state,
             id,
         }
     }
@@ -259,7 +249,6 @@ impl Default for BrowserHistory {
                 let history = BrowserHistory {
                     inner,
                     callbacks,
-                    states: Rc::default(),
                 };
 
                 let listener = {
@@ -289,14 +278,8 @@ impl BrowserHistory {
         crate::utils::notify_callbacks(self.callbacks.clone());
     }
 
-    fn create_history_state() -> (u32, JsValue) {
-        let history_state = HistoryState::new();
-
-        (
-            history_state.id(),
-            serde_wasm_bindgen::to_value(&history_state)
-                .expect_throw("fails to create history state."),
-        )
+    fn create_state(user_state: Option<JsValue>) -> JsValue {
+        compose_state(get_id(), user_state)
     }
 
     pub(crate) fn combine_url(route: &str, query: &str) -> String {
