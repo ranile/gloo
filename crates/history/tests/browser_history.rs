@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use wasm_bindgen_test::{wasm_bindgen_test as test, wasm_bindgen_test_configure};
 
 use gloo_history::{BrowserHistory, History};
@@ -49,8 +47,8 @@ async fn history_works() {
         let history = history.clone();
         move || {
             let location = history.location();
-            let state: Option<Rc<String>> = location.state();
-            assert_eq!(state, Some(Rc::new(location.path().to_owned())));
+            let state: Option<String> = location.state();
+            assert_eq!(state, Some(location.path().to_owned()));
         }
     });
 

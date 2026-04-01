@@ -13,8 +13,6 @@ mod feat_serialize {
 
     use utils::delayed_assert_eq;
 
-    use std::rc::Rc;
-
     use serde::{Deserialize, Serialize};
 
     use gloo_history::{HashHistory, History};
@@ -131,11 +129,9 @@ mod feat_serialize {
             let history = history.clone();
             delayed_assert_eq(
                 || history.location().state::<State>().unwrap(),
-                || {
-                    Rc::new(State {
-                        i: "something".to_string(),
-                        ii: 123,
-                    })
+                || State {
+                    i: "something".to_string(),
+                    ii: 123,
                 },
             )
             .await;

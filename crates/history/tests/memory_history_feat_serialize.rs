@@ -6,8 +6,6 @@ wasm_bindgen_test_configure!(run_in_browser);
 mod feat_serialize {
     use wasm_bindgen_test::wasm_bindgen_test as test;
 
-    use std::rc::Rc;
-
     use serde::{Deserialize, Serialize};
 
     use gloo_history::{History, MemoryHistory};
@@ -72,10 +70,10 @@ mod feat_serialize {
         assert_eq!(history.location().path(), "/path-c");
         assert_eq!(
             history.location().state::<State>().unwrap(),
-            Rc::new(State {
+            State {
                 i: "something".to_string(),
                 ii: 123,
-            })
+            }
         );
     }
 }
