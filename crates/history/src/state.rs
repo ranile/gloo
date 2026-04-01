@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use wasm_bindgen::JsValue;
+use wasm_bindgen::{JsValue, UnwrapThrowExt};
 
 /// A constant to prevent state collision.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -29,11 +29,11 @@ pub(crate) fn compose_state(id: u32, user_state: Option<JsValue>) -> JsValue {
     };
 
     let js =
-        serde_wasm_bindgen::to_value(&history_state).expect("failed to serialize history state");
+        serde_wasm_bindgen::to_value(&history_state).expect_throw("failed to serialize history state");
 
     if let Some(state) = user_state {
         let key = JsValue::from_str("state");
-        js_sys::Reflect::set(&js, &key, &state).expect("failed to set state");
+        js_sys::Reflect::set(&js, &key, &state).expect_throw("failed to set state");
     }
 
     js
