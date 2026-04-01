@@ -1,0 +1,3 @@
+# Required by getrandom 0.3.x for wasm32-unknown-unknown support, used in the nested-worker-yew example
+[target.wasm32-unknown-unknown]
+rustflags = ['--cfg', 'getrandom_backend="wasm_js"']

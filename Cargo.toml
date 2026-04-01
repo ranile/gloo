@@ -88,6 +88,7 @@ members = [
   "examples/file-hash",
   "examples/history-wasi",
   "examples/prime",
+  "examples/nested-worker-yew",
 ]
 
 # Passing arguments to the docsrs builder in order to properly document cfg's.

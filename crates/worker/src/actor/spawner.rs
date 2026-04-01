@@ -4,10 +4,10 @@ use std::fmt;
 use std::marker::PhantomData;
 use std::rc::{Rc, Weak};
 
-use gloo_utils::window;
 use js_sys::Array;
 use serde::de::Deserialize;
 use serde::ser::Serialize;
+use wasm_bindgen::JsValue;
 use web_sys::{Blob, BlobPropertyBag, Url, WorkerOptions, WorkerType};
 
 use super::bridge::{CallbackMap, WorkerBridge};
@@ -182,12 +182,9 @@ where
         let path = if self.with_loader {
             std::borrow::Cow::Borrowed(path)
         } else {
-            let js_shim_url = Url::new_with_base(
-                path,
-                &window().location().href().expect("failed to read href."),
-            )
-            .expect("failed to create url for javascript entrypoint")
-            .to_string();
+            let js_shim_url = Url::new_with_base(path, &base_url())
+                .expect("failed to create url for javascript entrypoint")
+                .to_string();
 
             let wasm_url = js_shim_url.replace(".js", "_bg.wasm");
 
@@ -214,4 +211,14 @@ where
             DedicatedWorker::new(path).ok()
         }
     }
+}
+
+fn base_url() -> String {
+    let global = js_sys::global();
+    let location = js_sys::Reflect::get(&global, &JsValue::from_str("location"))
+        .expect("failed to get location");
+    js_sys::Reflect::get(&location, &JsValue::from_str("href"))
+        .expect("failed to get href")
+        .as_string()
+        .expect("href is not a string")
 }

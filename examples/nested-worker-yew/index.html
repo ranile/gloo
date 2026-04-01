@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Nested Web Worker</title>
+    <link data-trunk rel="sass" href="index.scss" />
+    <link data-trunk rel="icon" href="favicon.ico" />
+    <link data-trunk rel="rust" data-type="worker" data-wasm-opt="z" data-bin="nested_worker_inner" data-weak-refs data-loader-shim data-bindgen-target="web" />
+    <link data-trunk rel="rust" data-type="worker" data-wasm-opt="z" data-bin="nested_worker_outer" data-weak-refs data-loader-shim data-bindgen-target="web" />
+    <link data-trunk rel="rust" data-wasm-opt="z" data-bin="nested_worker_app" />
+  </head>
+  <body></body>
+</html>
