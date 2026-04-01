@@ -435,6 +435,9 @@
 ### Version 0.7.0
 
 - **BREAKING:** Replace `Bincode` with `Postcard` (#540) by @ranile
+- Keep EventSource alive until all subscriptions are closed (#545) by @ranile  
+  **BREAKING:** EventSource no longer closes the underlying connection on drop. The connection now stays alive as long
+  as any EventSourceSubscription exists. Call EventSource::close() to shut down immediately.
 
 ### Version 0.6.0
 
