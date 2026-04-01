@@ -1,6 +1,6 @@
 ## `gloo`
 
-### Version 0.12.1
+### Version 0.13
 
 - Fix docs.rs build failure: remove `rustc-args` from docs.rs metadata and replace removed `doc_auto_cfg` feature with `doc_cfg`
 
