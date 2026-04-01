@@ -28,8 +28,8 @@ pub(crate) fn compose_state(id: u32, user_state: Option<JsValue>) -> JsValue {
         kind: HistoryStateKind::Gloo,
     };
 
-    let js =
-        serde_wasm_bindgen::to_value(&history_state).expect_throw("failed to serialize history state");
+    let js = serde_wasm_bindgen::to_value(&history_state)
+        .expect_throw("failed to serialize history state");
 
     if let Some(state) = user_state {
         let key = JsValue::from_str("state");
