@@ -19,7 +19,7 @@ wasm-bindgen = "0.2.114"
 futures = "0.3.32"
 sha2 = "0.11.0"
 console_error_panic_hook = "0.1.7"
-yew = { version = "0.21.0", features = ["csr"] }
+yew = { version = "0.23.0", features = ["csr"] }
 serde-wasm-bindgen = "0.6.5"
 js-sys = { workspace = true }
 hex = "0.4.3"
