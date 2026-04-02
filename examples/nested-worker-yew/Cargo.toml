@@ -9,10 +9,10 @@ publish = false
 gloo-worker = { path = "../../crates/worker" }
 serde = { version = "1", features = ["derive"] }
 console_error_panic_hook = "0.1.7"
-yew = { version = "0.21", features = ["csr"] }
+yew = { version = "0.23", features = ["csr"] }
 web-sys = { version = "0.3", features = ["MouseEvent"] }
 js-sys = "0.3"
-rand = "0.9"
+rand = "0.10"
 # getrandom 0.3.2+ resolves wasi 0.14.7 which pulls in wasip2/wit-bindgen 0.51
 # requiring edition 2024, incompatible with MSRV 1.82
 getrandom = { version = ">=0.3.0, <0.3.2", features = ["wasm_js"] }
