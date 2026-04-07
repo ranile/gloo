@@ -26,14 +26,25 @@ impl BlobContents for &str {
         // and `Blob` re-encodes JS strings from UTF-16 to UTF-8.
         // So, it's better to just pass the original bytes of the Rust string to `Blob`
         // and avoid the round trip through UTF-16.
-        self.as_bytes().into_jsvalue()
+        //
+        // SAFETY: forwarding to the `&[u8]` impl. Our caller has upheld
+        // `BlobContents::into_jsvalue`'s contract (not mutating the returned
+        // view and not keeping it past the slice's lifetime), and the byte
+        // slice from `as_bytes` shares `self`'s lifetime, so the same
+        // guarantees apply.
+        unsafe { self.as_bytes().into_jsvalue() }
     }
 }
 
 impl Sealed for &[u8] {}
 impl BlobContents for &[u8] {
     unsafe fn into_jsvalue(self) -> JsValue {
-        js_sys::Uint8Array::view(self).into()
+        // SAFETY: `Uint8Array::view` produces a JS view that aliases this
+        // Rust slice's memory. `BlobContents::into_jsvalue`'s contract
+        // requires the caller to neither mutate the returned `Uint8Array`
+        // nor retain it past the slice's lifetime, which is exactly what
+        // `Uint8Array::view` needs to be sound.
+        unsafe { js_sys::Uint8Array::view(self).into() }
     }
 }
 
