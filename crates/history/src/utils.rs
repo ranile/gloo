@@ -18,12 +18,12 @@ pub(crate) fn get_id() -> u32 {
     static INIT: std::sync::Once = std::sync::Once::new();
 
     INIT.call_once(|| {
-        let mut start: [u8; 4] = [0; 4];
-        // If it fails then the start is not or only partly filled.
-        // But since this method should not fail, we take what we get.
-        let _ = getrandom::getrandom(&mut start);
+        // If it fails we just leave the counter at 0 — this method shouldn't
+        // fail and a non-random start is not a correctness issue.
         // Using a high initial value is not an issue as `fetch_add` does wrap around.
-        ID_CTR.store(u32::from_ne_bytes(start), Ordering::SeqCst);
+        if let Ok(start) = getrandom::u32() {
+            ID_CTR.store(start, Ordering::SeqCst);
+        }
     });
 
     ID_CTR.fetch_add(1, Ordering::SeqCst)
