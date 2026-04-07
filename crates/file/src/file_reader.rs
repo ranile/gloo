@@ -144,7 +144,6 @@ pub mod callbacks {
 #[cfg(feature = "futures")]
 pub mod futures {
     use crate::{Blob, FileReadError};
-    use std::future::Future;
     use wasm_bindgen::UnwrapThrowExt;
 
     /// Returns the contents of `blob` as a text string.

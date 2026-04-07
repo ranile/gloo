@@ -1,7 +1,5 @@
 use std::cell::RefCell;
 use std::fmt;
-#[cfg(feature = "futures")]
-use std::future::Future;
 use std::rc::Rc;
 
 use serde::de::Deserialize;

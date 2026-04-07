@@ -5,7 +5,6 @@ use crate::callback::{Interval, Timeout};
 use futures_channel::{mpsc, oneshot};
 use futures_core::stream::Stream;
 use std::convert::TryFrom;
-use std::future::Future;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::Duration;

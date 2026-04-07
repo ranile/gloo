@@ -1,5 +1,3 @@
-use std::future::Future;
-
 use super::scope::ReactorScoped;
 
 /// A reactor worker.
