@@ -41,7 +41,7 @@
 use crate::eventsource::{EventSourceError, State};
 use crate::js_to_js_error;
 use futures_channel::mpsc;
-use futures_core::{ready, Stream};
+use futures_core::{Stream, ready};
 use gloo_utils::errors::JsError;
 use pin_project::{pin_project, pinned_drop};
 use std::fmt;
@@ -49,8 +49,8 @@ use std::fmt::Formatter;
 use std::pin::Pin;
 use std::rc::Rc;
 use std::task::{Context, Poll};
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::*;
 use web_sys::MessageEvent;
 
 /// Wrapper around [`web_sys::EventSource`] that closes the underlying connection when the

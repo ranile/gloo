@@ -2,12 +2,12 @@
 
 use futures_channel::{mpsc, oneshot};
 use futures_util::{
-    future::{select, Either, FutureExt},
+    future::{Either, FutureExt, select},
     stream::StreamExt,
 };
 use gloo_timers::{
     callback::{Interval, Timeout},
-    future::{sleep, IntervalStream, TimeoutFuture},
+    future::{IntervalStream, TimeoutFuture, sleep},
 };
 use std::cell::Cell;
 use std::rc::Rc;

@@ -1,10 +1,10 @@
 use wasm_bindgen::prelude::*;
 
+use super::Shared;
 use super::messages::ToWorker;
 use super::native_worker::{DedicatedWorker, WorkerSelf};
 use super::scope::{WorkerDestroyHandle, WorkerScope};
 use super::traits::Worker;
-use super::Shared;
 
 pub(crate) struct WorkerState<W>
 where

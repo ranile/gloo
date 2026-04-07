@@ -32,7 +32,8 @@ where
     W: Worker,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("WorkerBridgeInner<_>").finish_non_exhaustive()
+        f.debug_struct("WorkerBridgeInner<_>")
+            .finish_non_exhaustive()
     }
 }
 

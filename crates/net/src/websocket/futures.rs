@@ -28,9 +28,9 @@
 //! # }
 //! ```
 use crate::js_to_js_error;
-use crate::websocket::{events::CloseEvent, Message, State, WebSocketError};
+use crate::websocket::{Message, State, WebSocketError, events::CloseEvent};
 use futures_channel::mpsc;
-use futures_core::{ready, Stream};
+use futures_core::{Stream, ready};
 use futures_sink::Sink;
 use gloo_utils::errors::JsError;
 use pin_project::{pin_project, pinned_drop};
@@ -38,8 +38,8 @@ use std::cell::RefCell;
 use std::pin::Pin;
 use std::rc::Rc;
 use std::task::{Context, Poll, Waker};
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::*;
 use web_sys::{BinaryType, MessageEvent};
 
 /// Wrapper around browser's WebSocket API.

@@ -6,8 +6,8 @@
 use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::*;
 
 /// Handle for [`request_animation_frame`].
 #[derive(Debug)]

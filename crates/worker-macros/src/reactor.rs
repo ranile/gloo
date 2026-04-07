@@ -38,7 +38,7 @@ impl WorkerFnType for ReactorFn {
                 return Err(syn::Error::new_spanned(
                     ty,
                     "reactor workers cannot return any value",
-                ))
+                ));
             }
         }
 

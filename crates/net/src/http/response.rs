@@ -1,6 +1,6 @@
 use std::{convert::From, fmt};
 
-use crate::{js_to_error, Error};
+use crate::{Error, js_to_error};
 use js_sys::{ArrayBuffer, Uint8Array};
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;

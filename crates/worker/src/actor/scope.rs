@@ -6,12 +6,12 @@ use serde::de::Deserialize;
 use serde::ser::Serialize;
 use wasm_bindgen_futures::spawn_local;
 
+use super::Shared;
 use super::handler_id::HandlerId;
 use super::lifecycle::{WorkerLifecycleEvent, WorkerRunnable, WorkerState};
 use super::messages::FromWorker;
 use super::native_worker::{DedicatedWorker, NativeWorkerExt, WorkerSelf};
 use super::traits::Worker;
-use super::Shared;
 use crate::codec::Codec;
 
 /// A handle that closes the worker when it is dropped.

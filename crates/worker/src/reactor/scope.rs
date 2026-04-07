@@ -2,9 +2,9 @@ use std::convert::Infallible;
 use std::fmt;
 use std::pin::Pin;
 
+use futures::Sink;
 use futures::stream::{FusedStream, Stream};
 use futures::task::{Context, Poll};
-use futures::Sink;
 
 /// A handle to communicate with bridges.
 pub struct ReactorScope<I, O> {

@@ -43,7 +43,7 @@
 //! types to customize the encoding and decoding strategies. See the documentation for these traits
 //! for more detail on how this can be done.
 use crate::error::HistoryError;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use std::borrow::Cow;
 use std::convert::{AsRef, Infallible};
 

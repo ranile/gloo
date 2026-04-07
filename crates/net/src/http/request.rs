@@ -1,11 +1,11 @@
 use crate::http::{Headers, QueryParams, Response};
-use crate::{js_to_error, Error};
+use crate::{Error, js_to_error};
 use http::Method;
 use js_sys::{ArrayBuffer, Uint8Array};
 use std::convert::{From, TryFrom, TryInto};
 use std::fmt;
 use std::str::FromStr;
-use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
+use wasm_bindgen::{JsCast, JsValue, prelude::wasm_bindgen};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
     AbortSignal, FormData, ObserverCallback, ReadableStream, ReferrerPolicy, RequestCache,

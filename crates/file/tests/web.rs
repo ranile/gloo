@@ -6,8 +6,8 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
 use wasm_bindgen_test::*;
 
-use gloo_file::{callbacks::read_as_text, Blob, File, ObjectUrl};
-use web_sys::{window, Response};
+use gloo_file::{Blob, File, ObjectUrl, callbacks::read_as_text};
+use web_sys::{Response, window};
 
 wasm_bindgen_test_configure!(run_in_browser);
 

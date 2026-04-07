@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use futures::{FutureExt, StreamExt};
 use gloo::timers::future::sleep;
-use gloo::worker::reactor::{reactor, ReactorScope};
+use gloo::worker::reactor::{ReactorScope, reactor};
 
 use futures::sink::SinkExt;
 use serde::{Deserialize, Serialize};

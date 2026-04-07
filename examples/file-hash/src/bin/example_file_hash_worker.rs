@@ -1,5 +1,5 @@
-use example_file_hash::codec::TransferrableCodec;
 use example_file_hash::HashWorker;
+use example_file_hash::codec::TransferrableCodec;
 
 use gloo_worker::Registrable;
 

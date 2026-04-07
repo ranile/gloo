@@ -8,7 +8,7 @@ use gloo_events::{EventListener, EventListenerOptions, EventListenerPhase};
 use js_sys::Error;
 use wasm_bindgen::{JsCast, JsValue, UnwrapThrowExt};
 use wasm_bindgen_test::*;
-use web_sys::{window, HtmlElement};
+use web_sys::{HtmlElement, window};
 
 wasm_bindgen_test_configure!(run_in_browser);
 

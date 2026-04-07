@@ -12,7 +12,7 @@ use crate::history::History;
 use crate::listener::HistoryListener;
 use crate::location::Location;
 use crate::utils::{
-    assert_absolute_path, assert_no_fragment, assert_no_query, get_id, WeakCallback,
+    WeakCallback, assert_absolute_path, assert_no_fragment, assert_no_query, get_id,
 };
 #[cfg(feature = "query")]
 use crate::{error::HistoryResult, query::ToQuery};

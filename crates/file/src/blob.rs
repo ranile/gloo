@@ -4,7 +4,7 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
-use wasm_bindgen::{prelude::*, throw_str, JsCast};
+use wasm_bindgen::{JsCast, prelude::*, throw_str};
 
 /// This trait is used to overload the `Blob::new_with_options` function, allowing a variety of
 /// types to be used to create a `Blob`. Ignore this, and use &\[u8], &str, etc to create a `Blob`.

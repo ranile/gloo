@@ -1,11 +1,11 @@
+use proc_macro_crate::{FoundCrate, crate_name};
 use proc_macro2::{Span, TokenStream};
-use proc_macro_crate::{crate_name, FoundCrate};
 use quote::ToTokens;
 use syn::parse::{Parse, ParseStream};
 use syn::punctuated::Punctuated;
 use syn::token::Comma;
 use syn::{
-    parse_quote, Attribute, FnArg, Generics, Ident, Item, ItemFn, Signature, Type, Visibility,
+    Attribute, FnArg, Generics, Ident, Item, ItemFn, Signature, Type, Visibility, parse_quote,
 };
 
 pub trait WorkerFnType {
@@ -97,7 +97,7 @@ where
                         "`{}` attribute can only be applied to functions",
                         F::attr_name()
                     ),
-                ))
+                ));
             }
         };
 

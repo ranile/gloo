@@ -5,8 +5,8 @@ mod oneshot;
 mod reactor;
 mod worker_fn;
 
-use oneshot::{oneshot_impl, OneshotFn};
-use reactor::{reactor_impl, ReactorFn};
+use oneshot::{OneshotFn, oneshot_impl};
+use reactor::{ReactorFn, reactor_impl};
 use worker_fn::{WorkerFn, WorkerName};
 
 #[proc_macro_attribute]

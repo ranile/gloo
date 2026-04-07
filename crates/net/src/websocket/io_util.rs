@@ -3,7 +3,7 @@ use core::pin::Pin;
 use core::task::{Context, Poll};
 use std::io;
 
-use futures_core::{ready, Stream as _};
+use futures_core::{Stream as _, ready};
 use futures_io::{AsyncRead, AsyncWrite};
 use futures_sink::Sink;
 

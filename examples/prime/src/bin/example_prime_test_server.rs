@@ -1,7 +1,7 @@
 #![cfg(not(target_arch = "wasm32"))]
 
-use warp::reply::with_header;
 use warp::Filter;
+use warp::reply::with_header;
 
 // This server is purely to faclitate testing.
 // Please read the instruction in lib.rs about how to run tests.
