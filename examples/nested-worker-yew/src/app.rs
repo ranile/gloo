@@ -35,7 +35,7 @@ impl Reducible for AppState {
     }
 }
 
-#[function_component]
+#[component]
 pub fn App() -> Html {
     let state = use_reducer(|| AppState {
         results: Vec::new(),
@@ -94,12 +94,12 @@ pub fn App() -> Html {
                 </div>
                 <div class="workers__connector"></div>
                 <div class="workers__pool">
-                    { for state.active_workers.iter().map(|&id| html! {
+                    for &id in state.active_workers.iter() {
                         <div class="worker-node worker-node--compute" key={id.to_string()}>
                             <div class="worker-node__icon">{format!("#{id}")}</div>
                             <div class="worker-node__label">{"Compute"}</div>
                         </div>
-                    })}
+                    }
                 </div>
             </div>
 
