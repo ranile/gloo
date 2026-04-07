@@ -31,7 +31,7 @@ where
     R: Reactor,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("ReactorBridge<_>")
+        f.debug_struct("ReactorBridge<_>").finish_non_exhaustive()
     }
 }
 

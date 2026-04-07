@@ -37,7 +37,7 @@ where
     CODEC: Codec,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("WorkerScope<_>")
+        f.debug_struct("WorkerSpawner<_>").finish_non_exhaustive()
     }
 }
 

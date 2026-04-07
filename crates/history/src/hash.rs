@@ -24,7 +24,7 @@ pub struct HashHistory {
 
 impl fmt::Debug for HashHistory {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("HashHistory").finish()
+        f.debug_struct("HashHistory").finish_non_exhaustive()
     }
 }
 

@@ -67,6 +67,6 @@ where
     CODEC: Codec + 'static,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ReactorRegistrar<_>").finish()
+        f.debug_struct("ReactorRegistrar<_>").finish_non_exhaustive()
     }
 }

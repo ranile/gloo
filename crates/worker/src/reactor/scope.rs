@@ -14,7 +14,7 @@ pub struct ReactorScope<I, O> {
 
 impl<I, O> fmt::Debug for ReactorScope<I, O> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ReactorScope<_>").finish()
+        f.debug_struct("ReactorScope<_>").finish_non_exhaustive()
     }
 }
 

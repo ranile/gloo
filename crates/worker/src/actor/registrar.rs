@@ -22,7 +22,7 @@ where
 
 impl<W: Worker> fmt::Debug for WorkerRegistrar<W> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("WorkerRegistrar<_>")
+        f.debug_struct("WorkerRegistrar<_>").finish_non_exhaustive()
     }
 }
 

@@ -109,7 +109,7 @@ impl PartialEq for MemoryHistory {
 
 impl fmt::Debug for MemoryHistory {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("MemoryHistory").finish()
+        f.debug_struct("MemoryHistory").finish_non_exhaustive()
     }
 }
 

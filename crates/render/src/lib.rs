@@ -20,7 +20,7 @@ pub struct AnimationFrame {
 struct CallbackWrapper(Box<dyn FnOnce(f64) + 'static>);
 impl fmt::Debug for CallbackWrapper {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("CallbackWrapper")
+        f.debug_struct("CallbackWrapper").finish_non_exhaustive()
     }
 }
 

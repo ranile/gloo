@@ -24,7 +24,8 @@ where
 
 impl<W: Worker> fmt::Debug for WorkerDestroyHandle<W> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("WorkerDestroyHandle<_>")
+        f.debug_struct("WorkerDestroyHandle<_>")
+            .finish_non_exhaustive()
     }
 }
 
@@ -54,7 +55,7 @@ pub struct WorkerScope<W: Worker> {
 
 impl<W: Worker> fmt::Debug for WorkerScope<W> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("WorkerScope<_>")
+        f.debug_struct("WorkerScope<_>").finish_non_exhaustive()
     }
 }
 
