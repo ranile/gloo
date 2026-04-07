@@ -5,7 +5,7 @@ authors = [
   "Rust and WebAssembly Working Group",
   "Elina <imelina@elina.website>",
 ]
-edition = "2021"
+edition = { workspace = true }
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/rustwasm/gloo"
 description = "HTTP requests library for WASM Apps"

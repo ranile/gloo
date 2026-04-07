@@ -2,7 +2,7 @@
 name = "example-history-wasi"
 version = "0.1.0"
 authors = ["Rust and WebAssembly Working Group"]
-edition = "2021"
+edition = { workspace = true }
 publish = false
 rust-version = { workspace = true }
 

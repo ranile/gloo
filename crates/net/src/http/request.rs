@@ -17,7 +17,7 @@ use web_sys::{
 use serde::de::DeserializeOwned;
 
 #[wasm_bindgen]
-extern "C" {
+unsafe extern "C" {
     // Create a separate binding for `fetch` as a global, rather than using the
     // existing Window/WorkerGlobalScope bindings defined by web_sys, for
     // greater efficiency.

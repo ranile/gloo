@@ -5,7 +5,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::{JsCast, JsValue};
 
 #[wasm_bindgen]
-extern "C" {
+unsafe extern "C" {
     #[wasm_bindgen(js_name = "setTimeout", catch)]
     fn set_timeout(handler: &Function, timeout: i32) -> Result<JsValue, JsValue>;
 

@@ -3,7 +3,7 @@ name = "gloo-file"
 description = "Convenience crate for working with JavaScript files and blobs"
 version = "0.4.0"
 authors = ["Rust and WebAssembly Working Group"]
-edition = "2021"
+edition = { workspace = true }
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/rustwasm/gloo/tree/master/crates/file"

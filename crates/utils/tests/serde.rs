@@ -18,7 +18,7 @@ pub fn start() {
 }
 
 #[wasm_bindgen(module = "/tests/serde.js")]
-extern "C" {
+unsafe extern "C" {
     fn verify_serde(val: JsValue);
     fn make_js_value() -> JsValue;
 }

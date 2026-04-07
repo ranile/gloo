@@ -2,7 +2,7 @@
 name = "gloo-worker"
 version = "0.6.0"
 authors = ["Rust and WebAssembly Working Group"]
-edition = "2021"
+edition = { workspace = true }
 readme = "README.md"
 description = "Convenience crate for working with Web Workers"
 repository = "https://github.com/rustwasm/gloo/tree/master/crates/worker"
