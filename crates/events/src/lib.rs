@@ -40,7 +40,7 @@ pub enum EventListenerPhase {
 
 impl EventListenerPhase {
     #[inline]
-    fn is_capture(&self) -> bool {
+    const fn is_capture(&self) -> bool {
         match self {
             EventListenerPhase::Bubble => false,
             EventListenerPhase::Capture => true,
@@ -122,10 +122,10 @@ impl EventListenerOptions {
     /// # ;
     /// ```
     #[inline]
-    pub fn run_in_capture_phase() -> Self {
+    pub const fn run_in_capture_phase() -> Self {
         Self {
             phase: EventListenerPhase::Capture,
-            ..Self::default()
+            passive: true,
         }
     }
 
@@ -143,10 +143,10 @@ impl EventListenerOptions {
     /// # ;
     /// ```
     #[inline]
-    pub fn enable_prevent_default() -> Self {
+    pub const fn enable_prevent_default() -> Self {
         Self {
+            phase: EventListenerPhase::Bubble,
             passive: false,
-            ..Self::default()
         }
     }
 
