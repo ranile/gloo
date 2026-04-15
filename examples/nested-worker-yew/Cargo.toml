@@ -12,4 +12,4 @@ console_error_panic_hook = "0.1.7"
 yew = { version = "0.23.0", features = ["csr"] }
 web-sys = { version = "0.3", features = ["MouseEvent"] }
 js-sys = "0.3"
-rand = "0.10.0"
+rand = "0.10"
