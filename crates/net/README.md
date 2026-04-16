@@ -25,21 +25,47 @@ HTTP requests library for WASM Apps. It provides idiomatic Rust bindings for the
 
 ### HTTP
 
-```rust
-let resp = Request::get("/path")
-    .send()
-    .await
-    .unwrap();
-assert_eq!(resp.status(), 200);
+```rust,no_run
+use gloo_net::http::Request;
+async fn run() -> Result<(), gloo_net::Error> {
+    let resp = Request::get("/path")
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), 200);
+    Ok(())
+}
 ```
+with body
+```rust,no_run
+use gloo_net::http::Request;
+use serde::Serialize;
+    #[derive(Serialize)]
+    struct Post<'a> {
+        title: &'a str,
+        body: &'a str,
+        #[serde(rename = "userId")]
+        user_id: u32,
+    }
+    
+    async fn run() -> Result<(), gloo_net::Error> {
+    let response = Request::post("https://example.com/posts")
+        .json(&Post { title: "hello", body: "world", user_id: 1 })?
+        .send()
+        .await?;
+    let data = response.text().await?;
+    Ok(())
+    }
+```
+
 
 ### WebSocket
 
-```rust
+```rust,no_run
 use gloo_net::websocket::{Message, futures::WebSocket};
 use wasm_bindgen_futures::spawn_local;
 use futures::{SinkExt, StreamExt};
-
+use wasm_bindgen_test::console_log;
 let mut ws = WebSocket::open("wss://echo.websocket.org").unwrap();
 let (mut write, mut read) = ws.split();
 
@@ -50,7 +76,7 @@ spawn_local(async move {
 
 spawn_local(async move {
     while let Some(msg) = read.next().await {
-        console_log!(format!("1. {:?}", msg))
+        console_log!("{}",format!("1. {:?}", msg))
     }
     console_log!("WebSocket Closed")
 })
@@ -58,11 +84,11 @@ spawn_local(async move {
 
 ### EventSource
 
-```rust
+```rust,no_run
 use gloo_net::eventsource::futures::EventSource;
 use wasm_bindgen_futures::spawn_local;
 use futures::{stream, StreamExt};
-
+use wasm_bindgen_test::console_log;
 let mut es = EventSource::new("http://api.example.com/ssedemo.php").unwrap();
 let stream_1 = es.subscribe("some-event-type").unwrap();
 let stream_2 = es.subscribe("another-event-type").unwrap();
@@ -70,7 +96,7 @@ let stream_2 = es.subscribe("another-event-type").unwrap();
 spawn_local(async move {
     let mut all_streams = stream::select(stream_1, stream_2);
     while let Some(Ok((event_type, msg))) = all_streams.next().await {
-        console_log!(format!("1. {}: {:?}", event_type, msg))
+        console_log!("{}",format!("1. {}: {:?}", event_type, msg))
     }
     console_log!("EventSource Closed");
 })
