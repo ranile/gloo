@@ -16,7 +16,16 @@ use crate::{error::HistoryResult, query::ToQuery};
 ///
 /// # Panics
 ///
-/// HashHistory does not support relative paths and will panic if routes are not starting with `/`.
+/// The `push` and `replace` family of methods do not support relative paths
+/// and will panic if the provided route does not start with `/`.
+///
+/// # Hash Normalization
+///
+/// If the URL hash is manually edited by the user to a value that does not
+/// start with `#/`, calling `location()` will **not** panic. Instead, it will:
+/// 1. Log a warning to the browser console.
+/// 2. Normalize the hash by prepending `/` if missing.
+/// 3. Silently correct the URL in the address bar via `replaceState`.
 #[derive(Clone, PartialEq)]
 pub struct HashHistory {
     inner: BrowserHistory,
@@ -195,19 +204,29 @@ impl History for HashHistory {
 
     fn location(&self) -> Location {
         let inner_loc = self.inner.location();
-        // We strip # from hash.
-        let hash_url = inner_loc.hash().chars().skip(1).collect::<String>();
 
-        assert_absolute_path(&hash_url);
+        // Strip the leading '#' from the hash.
+        let raw_hash = inner_loc.hash().strip_prefix('#').unwrap_or("").to_string();
+
+        // Normalize: ensure it starts with '/'. Log a warning if it didn't.
+        let needs_correction = raw_hash.is_empty() || !raw_hash.starts_with('/');
+        let normalized = Self::normalize_hash(&raw_hash);
 
         let hash_url = Url::new_with_base(
-            &hash_url,
+            &normalized,
             &window()
                 .location()
                 .href()
                 .expect_throw("failed to get location href."),
         )
-        .expect_throw("failed to get make url");
+        .expect_throw("failed to make url");
+
+        // Auto-correct the URL in the address bar so it stays canonical.
+        if needs_correction {
+            let url = Self::get_url();
+            url.set_hash(&format!("#{normalized}"));
+            self.inner.replace(url.href());
+        }
 
         Location {
             path: hash_url.pathname().into(),
@@ -223,6 +242,33 @@ impl HashHistory {
     /// Creates a new [`HashHistory`]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Takes the raw content after '#' and ensures it starts with '/'.
+    /// If it doesn't, prepends '/' and logs a warning.
+    /// If it is empty, returns "/".
+    fn normalize_hash(raw: &str) -> String {
+        if raw.is_empty() {
+            web_sys::console::warn_1(
+                &"[gloo_history] HashHistory: URL hash is empty, defaulting to '/'. \
+                  The hash was auto-corrected to '#/'."
+                    .into(),
+            );
+            "/".to_string()
+        } else if !raw.starts_with('/') {
+            web_sys::console::warn_1(
+                &format!(
+                    "[gloo_history] HashHistory: URL hash '#{}' does not start with '/'. \
+                     The hash was normalized to '#/{}'. \
+                     Ensure hash-based routes always begin with '#/'.",
+                    raw, raw
+                )
+                .into(),
+            );
+            format!("/{raw}")
+        } else {
+            raw.to_string()
+        }
     }
 
     fn get_url() -> Url {
