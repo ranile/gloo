@@ -194,6 +194,10 @@
 
 ## `gloo-net`
 
+### Unreleased
+
+- Add HTTP, WebSocket, and EventSource usage examples to crate-level docs and README
+
 ### Version 0.7.0
 
 - Remove `Clone` implementation for `EventSource` (#417) by @vpochapuis

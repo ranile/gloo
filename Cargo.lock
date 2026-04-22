@@ -678,6 +678,7 @@ dependencies = [
  "futures-core",
  "futures-io",
  "futures-sink",
+ "gloo-console 0.4.0",
  "gloo-utils 0.3.0",
  "http 1.4.0",
  "js-sys",

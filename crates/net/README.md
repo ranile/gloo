@@ -1,103 +1,101 @@
+# gloo-net
+
 <div align="center">
+ <p>
+   <a href="https://crates.io/crates/gloo-net"><img src="https://img.shields.io/crates/v/gloo-net.svg?style=flat-square" alt="Crates.io version" /></a>
+   <a href="https://crates.io/crates/gloo-net"><img src="https://img.shields.io/crates/d/gloo-net.svg?style=flat-square" alt="Download" /></a>
+   <a href="https://docs.rs/gloo-net"><img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square" alt="docs.rs docs" /></a>
+ </p>
 
-  <h1><code>gloo-net</code></h1>
-
-  <p>
-    <a href="https://crates.io/crates/gloo-net"><img src="https://img.shields.io/crates/v/gloo-net.svg?style=flat-square" alt="Crates.io version" /></a>
-    <a href="https://crates.io/crates/gloo-net"><img src="https://img.shields.io/crates/d/gloo-net.svg?style=flat-square" alt="Download" /></a>
-    <a href="https://docs.rs/gloo-net"><img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square" alt="docs.rs docs" /></a>
-  </p>
-
-  <h3>
-    <a href="https://docs.rs/gloo-net">API Docs</a>
-    <span> | </span>
-    <a href="https://github.com/rustwasm/gloo/blob/master/CONTRIBUTING.md">Contributing</a>
-    <span> | </span>
-    <a href="https://discordapp.com/channels/442252698964721669/443151097398296587">Chat</a>
-  </h3>
+ <h3>
+   <a href="https://docs.rs/gloo-net">API Docs</a>
+   <span> | </span>
+   <a href="https://github.com/rustwasm/gloo/blob/master/CONTRIBUTING.md">Contributing</a>
+   <span> | </span>
+   <a href="https://discordapp.com/channels/442252698964721669/443151097398296587">Chat</a>
+ </h3>
 
 <sub>Built with 🦀🕸 by <a href="https://rustwasm.github.io/">The Rust and WebAssembly Working Group</a></sub>
 </div>
 
 HTTP requests library for WASM Apps. It provides idiomatic Rust bindings for the `web_sys` [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), [`WebSocket`](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket) and [`EventSource`](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) APIs.
 
-## Examples
 
-### HTTP
+#### HTTP
 
-```rust,no_run
+```rust
 use gloo_net::http::Request;
 async fn run() -> Result<(), gloo_net::Error> {
-    let resp = Request::get("/path")
-        .send()
-        .await
-        .unwrap();
-    assert_eq!(resp.status(), 200);
-    Ok(())
+   let resp = Request::get("/path")
+       .send()
+       .await
+       .unwrap();
+   assert_eq!(resp.status(), 200);
+   Ok(())
 }
 ```
 with body
-```rust,no_run
+```rust
 use gloo_net::http::Request;
 use serde::Serialize;
-    #[derive(Serialize)]
-    struct Post<'a> {
-        title: &'a str,
-        body: &'a str,
-        #[serde(rename = "userId")]
-        user_id: u32,
-    }
-    
-    async fn run() -> Result<(), gloo_net::Error> {
-    let response = Request::post("https://example.com/posts")
-        .json(&Post { title: "hello", body: "world", user_id: 1 })?
-        .send()
-        .await?;
-    let data = response.text().await?;
-    Ok(())
-    }
+#[derive(Serialize)]
+struct Post<'a> {
+   title: &'a str,
+   body: &'a str,
+   #[serde(rename = "userId")]
+   user_id: u32,
+}
+
+async fn run() -> Result<(), gloo_net::Error> {
+let response = Request::post("https://example.com/posts")
+   .json(&Post { title: "hello", body: "world", user_id: 1 })?
+   .send()
+   .await?;
+let data = response.text().await?;
+Ok(())
+}
 ```
 
 
-### WebSocket
+#### WebSocket
 
-```rust,no_run
+```rust
 use gloo_net::websocket::{Message, futures::WebSocket};
 use wasm_bindgen_futures::spawn_local;
 use futures::{SinkExt, StreamExt};
-use wasm_bindgen_test::console_log;
 let mut ws = WebSocket::open("wss://echo.websocket.org").unwrap();
 let (mut write, mut read) = ws.split();
 
 spawn_local(async move {
-    write.send(Message::Text(String::from("test"))).await.unwrap();
-    write.send(Message::Text(String::from("test 2"))).await.unwrap();
+   write.send(Message::Text(String::from("test"))).await.unwrap();
+   write.send(Message::Text(String::from("test 2"))).await.unwrap();
 });
 
 spawn_local(async move {
-    while let Some(msg) = read.next().await {
-        console_log!("{}",format!("1. {:?}", msg))
-    }
-    console_log!("WebSocket Closed")
+   while let Some(msg) = read.next().await {
+       gloo_console::log!(format!("1. {:?}", msg));
+   }
+   gloo_console::log!("WebSocket Closed");
 })
 ```
 
-### EventSource
+#### EventSource
 
-```rust,no_run
+```rust
 use gloo_net::eventsource::futures::EventSource;
 use wasm_bindgen_futures::spawn_local;
 use futures::{stream, StreamExt};
-use wasm_bindgen_test::console_log;
 let mut es = EventSource::new("http://api.example.com/ssedemo.php").unwrap();
 let stream_1 = es.subscribe("some-event-type").unwrap();
 let stream_2 = es.subscribe("another-event-type").unwrap();
 
 spawn_local(async move {
-    let mut all_streams = stream::select(stream_1, stream_2);
-    while let Some(Ok((event_type, msg))) = all_streams.next().await {
-        console_log!("{}",format!("1. {}: {:?}", event_type, msg))
-    }
-    console_log!("EventSource Closed");
+   let mut all_streams = stream::select(stream_1, stream_2);
+   while let Some(Ok((event_type, msg))) = all_streams.next().await {
+       gloo_console::log!("1. {}: {:?}", event_type, msg)
+   }
+   gloo_console::log!("EventSource Closed");
 })
 ```
+
+License: MIT OR Apache-2.0
