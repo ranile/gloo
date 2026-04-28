@@ -119,6 +119,43 @@ jobs:
             wasm-pack test --node crates/$x --no-default-features
           done
 
+  panic_unwind_build:
+    name: Build with -Cpanic=unwind
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      # Recent Rust nightlies with LLVM 22 are temporarily broken with
+      # `panic=unwind` (see wasm-bindgen/wasm-bindgen#4929). Pin to a known-good
+      # nightly to avoid flapping.
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2026-01-28
+          target: wasm32-unknown-unknown
+          components: rust-src
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-panic-unwind-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-panic-unwind-
+            cargo-${{ runner.os }}-
+
+      # Verify gloo-timers (and any other crate that hosts user closures via
+      # `Closure::wrap` / `Closure::once`) still builds cleanly under
+      # `panic = "unwind"` against the new `MaybeUnwindSafe` bounds added in
+      # wasm-bindgen 0.2.117+. Catches downstream regressions like
+      # https://github.com/MattiasBuelens/wasm-streams/pull/35 from creeping in.
+      - name: Build crates with panic=unwind
+        env:
+          RUSTFLAGS: '-Cpanic=unwind'
+        run: |
+          cargo build -p gloo-timers --target wasm32-unknown-unknown -Zbuild-std=std,panic_unwind
+
   test-history-wasi:
     name: Test gloo-history WASI
     runs-on: ubuntu-latest
