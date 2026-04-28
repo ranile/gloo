@@ -4,6 +4,32 @@ use js_sys::Function;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::{JsCast, JsValue};
 
+/// Bound carrying the unwind-safety requirement on [`Timeout::new`] /
+/// [`Interval::new`] callbacks.
+///
+/// Under `panic = "unwind"` on wasm the callback is invoked across a
+/// `catch_unwind` boundary inside `wasm_bindgen`, so this resolves to
+/// [`std::panic::UnwindSafe`]. Under any other panic strategy it is a no-op
+/// blanket. Wrap non-`UnwindSafe` captures in [`std::panic::AssertUnwindSafe`]
+/// at the call site.
+#[cfg(all(target_arch = "wasm32", panic = "unwind"))]
+pub trait CallbackUnwindSafe: std::panic::UnwindSafe {}
+#[cfg(all(target_arch = "wasm32", panic = "unwind"))]
+impl<T: std::panic::UnwindSafe> CallbackUnwindSafe for T {}
+
+/// Bound carrying the unwind-safety requirement on [`Timeout::new`] /
+/// [`Interval::new`] callbacks.
+///
+/// Under `panic = "unwind"` on wasm the callback is invoked across a
+/// `catch_unwind` boundary inside `wasm_bindgen`, so this resolves to
+/// [`std::panic::UnwindSafe`]. Under any other panic strategy it is a no-op
+/// blanket. Wrap non-`UnwindSafe` captures in [`std::panic::AssertUnwindSafe`]
+/// at the call site.
+#[cfg(not(all(target_arch = "wasm32", panic = "unwind")))]
+pub trait CallbackUnwindSafe {}
+#[cfg(not(all(target_arch = "wasm32", panic = "unwind")))]
+impl<T> CallbackUnwindSafe for T {}
+
 #[wasm_bindgen]
 unsafe extern "C" {
     #[wasm_bindgen(js_name = "setTimeout", catch)]
@@ -57,8 +83,18 @@ impl Timeout {
     /// ```
     pub fn new<F>(millis: u32, callback: F) -> Timeout
     where
-        F: 'static + FnOnce(),
+        F: 'static + FnOnce() + CallbackUnwindSafe,
     {
+        // Under `panic = "unwind"` we use the `_assert_unwind_safe` variant
+        // because `WasmClosureFnOnce` selection erases `F` into a trait-object
+        // dispatch that no longer carries the static `UnwindSafe` bound — the
+        // same dyn-erasure problem wasm-bindgen handles internally. The
+        // `CallbackUnwindSafe` bound on the public API has already enforced
+        // the requirement at the call site. On any other panic strategy
+        // `Closure::once` is unchanged and works on any 0.2.x wasm-bindgen.
+        #[cfg(all(target_arch = "wasm32", panic = "unwind"))]
+        let closure = Closure::once_assert_unwind_safe(callback);
+        #[cfg(not(all(target_arch = "wasm32", panic = "unwind")))]
         let closure = Closure::once(callback);
 
         let id = set_timeout(
@@ -158,8 +194,17 @@ impl Interval {
     /// ```
     pub fn new<F>(millis: u32, callback: F) -> Interval
     where
-        F: 'static + FnMut(),
+        F: 'static + FnMut() + CallbackUnwindSafe,
     {
+        // Same rationale as `Timeout::new`: the `Box<F> as Box<dyn FnMut()>`
+        // coercion erases the `UnwindSafe` bound, so under `panic = "unwind"`
+        // we use `_assert_unwind_safe` to acknowledge the erasure (the public
+        // `CallbackUnwindSafe` bound has already enforced unwind safety at
+        // the call site). Otherwise the original `Closure::wrap` path is
+        // preserved for older wasm-bindgen compatibility.
+        #[cfg(all(target_arch = "wasm32", panic = "unwind"))]
+        let closure = Closure::wrap_assert_unwind_safe(Box::new(callback) as Box<dyn FnMut()>);
+        #[cfg(not(all(target_arch = "wasm32", panic = "unwind")))]
         let closure = Closure::wrap(Box::new(callback) as Box<dyn FnMut()>);
 
         let id = set_interval(
