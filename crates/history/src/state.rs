@@ -51,13 +51,9 @@ pub(crate) fn extract_state(raw: JsValue) -> (Option<u32>, Option<JsValue>) {
     let id = Some(history_state.id());
 
     let key = JsValue::from_str("state");
-    let user_state = js_sys::Reflect::get(&raw, &key).ok().and_then(|v| {
-        if v.is_undefined() || v.is_null() {
-            None
-        } else {
-            Some(v)
-        }
-    });
+    let user_state = js_sys::Reflect::get(&raw, &key)
+        .ok()
+        .filter(|v| !(v.is_undefined() || v.is_null()));
 
     (id, user_state)
 }

@@ -2,7 +2,7 @@
 #[macro_export]
 macro_rules! clear {
     () => {
-        $crate::externs::clear();
+        $crate::externs::clear()
     };
 }
 
@@ -10,7 +10,7 @@ macro_rules! clear {
 #[macro_export]
 macro_rules! assert {
     ($assertion:expr, $($arg:expr),+) => {
-       $crate::externs::assert($assertion, ::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]));
+       $crate::externs::assert($assertion, ::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]))
     }
 }
 
@@ -18,7 +18,7 @@ macro_rules! assert {
 #[macro_export]
 macro_rules! debug {
     ($($arg:expr),+) => {
-       $crate::externs::debug(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]));
+       $crate::externs::debug(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]))
     }
 }
 
@@ -32,7 +32,7 @@ macro_rules! debug {
 #[macro_export]
 macro_rules! dir {
     ($arg:expr) => {
-        $crate::externs::dir(&$crate::__macro::JsValue::from($arg));
+        $crate::externs::dir(&$crate::__macro::JsValue::from($arg))
     };
 }
 
@@ -46,7 +46,7 @@ macro_rules! dir {
 #[macro_export]
 macro_rules! dirxml {
     ($arg:expr) => {
-        $crate::externs::dirxml(&$crate::__macro::JsValue::from($arg));
+        $crate::externs::dirxml(&$crate::__macro::JsValue::from($arg))
     };
 }
 
@@ -54,7 +54,7 @@ macro_rules! dirxml {
 #[macro_export]
 macro_rules! error {
     ($($arg:expr),+) => {
-       $crate::externs::error(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]));
+       $crate::externs::error(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]))
     }
 }
 
@@ -64,10 +64,10 @@ macro_rules! error {
 #[macro_export]
 macro_rules! group {
     ($($arg:expr),+) => {
-       $crate::externs::group(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]));
+       $crate::externs::group(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]))
     };
     (collapsed $($arg:expr),+) => {
-       $crate::externs::group_collapsed(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]));
+       $crate::externs::group_collapsed(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]))
     };
 }
 
@@ -75,7 +75,7 @@ macro_rules! group {
 #[macro_export]
 macro_rules! group_end {
     () => {
-        $crate::externs::group_end();
+        $crate::externs::group_end()
     };
 }
 
@@ -83,7 +83,7 @@ macro_rules! group_end {
 #[macro_export]
 macro_rules! info {
     ($($arg:expr),+) => {
-       $crate::externs::info(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]));
+       $crate::externs::info(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]))
     }
 }
 
@@ -97,10 +97,10 @@ macro_rules! info {
 #[macro_export]
 macro_rules! table {
     ($data:expr) => {
-        $crate::externs::table_with_data($crate::__macro::JsValue::from($data));
+        $crate::externs::table_with_data($crate::__macro::JsValue::from($data))
     };
     ($data:expr, $columns:expr) => {
-        $crate::__macro::table_with_data_and_columns($data, $columns);
+        $crate::__macro::table_with_data_and_columns($data, $columns)
     };
 }
 
@@ -108,7 +108,7 @@ macro_rules! table {
 #[macro_export]
 macro_rules! log {
     ($($arg:expr),+) => {
-       $crate::externs::log(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]));
+       $crate::externs::log(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]))
     }
 }
 
@@ -116,7 +116,7 @@ macro_rules! log {
 #[macro_export]
 macro_rules! trace {
     ($($arg:expr),+) => {
-       $crate::externs::trace(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]));
+       $crate::externs::trace(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]))
     }
 }
 
@@ -124,6 +124,31 @@ macro_rules! trace {
 #[macro_export]
 macro_rules! warn {
     ($($arg:expr),+) => {
-       $crate::externs::warn(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]));
+       $crate::externs::warn(::std::boxed::Box::from([$($crate::__macro::JsValue::from($arg),)+]))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(dead_code)]
+    //! These exist to ensure macros compile in expression position
+    //! (no trailing semicolon in the expansion, see rust-lang/rust#79813)
+
+    fn expression_position_works() {
+        let _: () = crate::clear!();
+        let _: () = crate::assert!(true, "msg");
+        let _: () = crate::debug!("debug");
+        let _: () = crate::dir!("dir");
+        let _: () = crate::dirxml!("dirxml");
+        let _: () = crate::error!("error");
+        let _: () = crate::group!("group");
+        let _: () = crate::group!(collapsed "group");
+        let _: () = crate::group_end!();
+        let _: () = crate::info!("info");
+        let _: () = crate::table!(crate::__macro::JsValue::from("data"));
+        let _: () = crate::log!("log");
+        let _: () = crate::trace!("trace");
+        let _: () = crate::warn!("warn");
+        let _: () = crate::console!();
     }
 }

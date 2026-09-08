@@ -9,7 +9,7 @@ macro_rules! console {
         $crate::log!(
             ::std::format!("%c[{}:{}] ", ::std::file!(), ::std::line!()),
             "font-weight: bold"
-        );
+        )
     };
     ($val:expr $(,)?) => {
         {
