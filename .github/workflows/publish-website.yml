@@ -58,7 +58,7 @@ jobs:
             echo "PR_NUMBER=$pr_number"
             echo "PR_BRANCH=$HEAD_BRANCH"
             echo "COMMIT_SHA=$HEAD_SHA"
-            echo "CHANNEL_ID='$PR_NUMBER-$COMMIT_SHA'"
+            echo "CHANNEL_ID=$pr_number-$HEAD_SHA"
           } >> "$GITHUB_ENV"
 
       - if: github.event.workflow_run.event == 'push'
