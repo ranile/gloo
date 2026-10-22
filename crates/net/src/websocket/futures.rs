@@ -296,12 +296,13 @@ impl Sink<Message> for WebSocket {
 
     fn start_send(self: Pin<&mut Self>, item: Message) -> Result<(), Self::Error> {
         let result = match item {
-            Message::Bytes(bytes) => self.ws.send_with_blob(
-                &web_sys::Blob::new_with_u8_array_sequence(&js_sys::Array::of1(
-                    &js_sys::Uint8Array::from(bytes.as_slice()),
-                ))
-                .map_err(|e| WebSocketError::MessageSendError(js_to_js_error(e)))?,
-            ),
+            // `Uint8Array::from` copies the bytes into a new, non-shared
+            // ArrayBuffer, which `send` accepts even when wasm memory is a
+            // SharedArrayBuffer. A Blob would work too, but costs a blob
+            // registration per message.
+            Message::Bytes(bytes) => self
+                .ws
+                .send_with_array_buffer_view(&js_sys::Uint8Array::from(bytes.as_slice())),
             Message::Text(message) => self.ws.send_with_str(&message),
         };
         match result {
