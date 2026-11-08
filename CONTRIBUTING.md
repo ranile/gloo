@@ -37,7 +37,7 @@ yourself.
 
 We abide by the [Rust Code of Conduct][coc] and ask that you do as well.
 
-[coc]: https://www.rust-lang.org/en-US/conduct.html
+[coc]: https://rust-lang.org/policies/code-of-conduct/
 
 ## Building and Testing
 
