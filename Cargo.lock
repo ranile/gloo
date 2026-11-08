@@ -261,7 +261,7 @@ dependencies = [
  "chrono",
  "console_error_panic_hook",
  "futures-util",
- "gloo 0.12.0",
+ "gloo 0.13.0",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
@@ -273,7 +273,7 @@ version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "futures",
- "gloo-worker 0.6.0",
+ "gloo-worker 0.7.0",
  "hex",
  "js-sys",
  "serde",
@@ -290,7 +290,7 @@ dependencies = [
 name = "example-history-wasi"
 version = "0.1.0"
 dependencies = [
- "gloo 0.12.0",
+ "gloo 0.13.0",
 ]
 
 [[package]]
@@ -299,7 +299,7 @@ version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "futures",
- "gloo 0.12.0",
+ "gloo 0.13.0",
  "js-sys",
  "pulldown-cmark",
  "tokio",
@@ -315,7 +315,7 @@ version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "futures",
- "gloo 0.12.0",
+ "gloo 0.13.0",
  "primes",
  "serde",
  "tokio",
@@ -505,19 +505,19 @@ dependencies = [
 
 [[package]]
 name = "gloo"
-version = "0.12.0"
+version = "0.13.0"
 dependencies = [
  "gloo-console 0.4.1",
- "gloo-dialogs 0.3.0",
- "gloo-events 0.3.0",
- "gloo-file 0.4.0",
- "gloo-history 0.3.0",
- "gloo-net 0.7.0",
- "gloo-render 0.3.0",
- "gloo-storage 0.4.0",
- "gloo-timers 0.4.0",
- "gloo-utils 0.3.0",
- "gloo-worker 0.6.0",
+ "gloo-dialogs 0.3.1",
+ "gloo-events 0.3.1",
+ "gloo-file 0.4.1",
+ "gloo-history 0.4.0",
+ "gloo-net 0.8.0",
+ "gloo-render 0.3.1",
+ "gloo-storage 0.4.1",
+ "gloo-timers 0.4.1",
+ "gloo-utils 0.3.1",
+ "gloo-worker 0.7.0",
 ]
 
 [[package]]
@@ -537,8 +537,8 @@ dependencies = [
 name = "gloo-console"
 version = "0.4.1"
 dependencies = [
- "gloo-timers 0.4.0",
- "gloo-utils 0.3.0",
+ "gloo-timers 0.4.1",
+ "gloo-utils 0.3.1",
  "js-sys",
  "serde",
  "wasm-bindgen",
@@ -558,7 +558,7 @@ dependencies = [
 
 [[package]]
 name = "gloo-dialogs"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "wasm-bindgen",
  "web-sys",
@@ -576,7 +576,7 @@ dependencies = [
 
 [[package]]
 name = "gloo-events"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "futures",
  "js-sys",
@@ -599,12 +599,12 @@ dependencies = [
 
 [[package]]
 name = "gloo-file"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "chrono",
  "futures",
  "futures-channel",
- "gloo-events 0.3.0",
+ "gloo-events 0.3.1",
  "js-sys",
  "mime",
  "wasm-bindgen",
@@ -632,12 +632,12 @@ dependencies = [
 
 [[package]]
 name = "gloo-history"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "getrandom 0.4.2",
- "gloo-events 0.3.0",
- "gloo-timers 0.4.0",
- "gloo-utils 0.3.0",
+ "gloo-events 0.3.1",
+ "gloo-timers 0.4.1",
+ "gloo-utils 0.3.1",
  "js-sys",
  "serde",
  "serde-wasm-bindgen",
@@ -671,7 +671,7 @@ dependencies = [
 
 [[package]]
 name = "gloo-net"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "futures",
  "futures-channel",
@@ -679,7 +679,7 @@ dependencies = [
  "futures-io",
  "futures-sink",
  "gloo-console 0.4.1",
- "gloo-utils 0.3.0",
+ "gloo-utils 0.3.1",
  "http 1.4.0",
  "js-sys",
  "pin-project",
@@ -704,7 +704,7 @@ dependencies = [
 
 [[package]]
 name = "gloo-render"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "wasm-bindgen",
  "web-sys",
@@ -727,9 +727,9 @@ dependencies = [
 
 [[package]]
 name = "gloo-storage"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
- "gloo-utils 0.3.0",
+ "gloo-utils 0.3.1",
  "js-sys",
  "serde",
  "serde_json",
@@ -751,7 +751,7 @@ dependencies = [
 
 [[package]]
 name = "gloo-timers"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "futures-channel",
  "futures-core",
@@ -777,7 +777,7 @@ dependencies = [
 
 [[package]]
 name = "gloo-utils"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "js-sys",
  "serde",
@@ -809,10 +809,10 @@ dependencies = [
 
 [[package]]
 name = "gloo-worker"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "futures",
- "gloo-worker-macros 0.2.0",
+ "gloo-worker-macros 0.2.1",
  "js-sys",
  "pinned",
  "postcard",
@@ -837,9 +837,9 @@ dependencies = [
 
 [[package]]
 name = "gloo-worker-macros"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
- "gloo 0.12.0",
+ "gloo 0.13.0",
  "proc-macro-crate 3.5.0",
  "proc-macro2",
  "quote",
@@ -1185,7 +1185,7 @@ name = "nested-worker-yew"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
- "gloo-worker 0.6.0",
+ "gloo-worker 0.7.0",
  "js-sys",
  "rand",
  "serde",

@@ -3,7 +3,8 @@
 ### Version 0.13.0
 
 - Fix docs.rs build failure: remove `rustc-args` from docs.rs metadata and replace removed `doc_auto_cfg` feature with `doc_cfg`
-- Migrate to Edition 2024 and increase MSRV to 1.85 
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
+- Bump all sub-crate versions (#587) by @nazar-pc
 
 ### Version 0.12.0
 
@@ -53,6 +54,10 @@
 
 ## `gloo-dialogs`
 
+### Version 0.3.1
+
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
+
 ### Version 0.3.0
 
 - Update MSRV to 1.82 (#505) by @martinfrances107
@@ -68,6 +73,7 @@
 ### Version 0.3.1
 
 - Fix build with `panic = "unwind"`: `EventListener` constructors now require the callback to implement `CallbackUnwindSafe`, which resolves to `std::panic::UnwindSafe` under `panic = "unwind"` on wasm and is a no-op blanket otherwise (#562) by @guybedford
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
 
 ### Version 0.3.0
 
@@ -117,6 +123,7 @@
 ### Version 0.4.1
 
 - Fix build with `panic = "unwind"`: `callbacks::read_as_*` functions now require the callback to implement `CallbackUnwindSafe`, which resolves to `std::panic::UnwindSafe` under `panic = "unwind"` on wasm and is a no-op blanket otherwise (#590) by @nazar-pc
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
 
 ### Version 0.4.0
 
@@ -154,6 +161,7 @@
 
 - **Breaking:** Serialize history state into `history.state` instead of in-memory map (#541) by @ranile
 - Fix build with `panic = "unwind"`: `History::listen` now requires the callback to implement `CallbackUnwindSafe`, which resolves to `std::panic::UnwindSafe` under `panic = "unwind"` on wasm and is a no-op blanket otherwise (#590) by @nazar-pc
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
 
 ### Version 0.3.0
 
@@ -214,6 +222,7 @@
   **BREAKING:** EventSource no longer closes the underlying connection on drop. The connection now stays alive as long
   as any EventSourceSubscription exists. Call EventSource::close() to shut down immediately.
 - Add HTTP, WebSocket, and EventSource usage examples to crate-level docs and README (#556) by @lidm0707
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
 
 ### Version 0.7.0
 
@@ -307,6 +316,7 @@
 ### Version 0.3.1
 
 - Fix build with `panic = "unwind"`: `request_animation_frame` now requires the callback to implement `CallbackUnwindSafe`, which resolves to `std::panic::UnwindSafe` under `panic = "unwind"` on wasm and is a no-op blanket otherwise (#562) by @guybedford
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
 
 ### Version 0.3.0
 
@@ -319,6 +329,10 @@
 ### Version 0.1.0
 
 ## `gloo-storage`
+
+### Version 0.4.1
+
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
 
 ### Version 0.4.0
 
@@ -346,6 +360,7 @@
 ### Version 0.4.1
 
 - Fix build with `panic = "unwind"`: `Timeout::new` and `Interval::new` now require the callback to implement `CallbackUnwindSafe`, which resolves to `std::panic::UnwindSafe` under `panic = "unwind"` on wasm and is a no-op blanket otherwise (#562) by @guybedford
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
 
 ### Version 0.4.0
 
@@ -421,6 +436,10 @@
 
 ## `gloo-utils`
 
+### Version 0.3.1
+
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
+
 ### Version 0.3.0
 
 - Fix `JsError::try_from` panicking on non-string-coercible `JsValue` inputs (#488) by @ranile
@@ -471,6 +490,7 @@
 - **BREAKING:** Replace `Bincode` with `Postcard` (#540) by @ranile
 - Fix build with `panic = "unwind"`: `WorkerSpawner::callback` and `WorkerBridge::fork` now require the callback to implement `CallbackUnwindSafe`, which resolves to `std::panic::UnwindSafe` under `panic = "unwind"` on wasm and is a no-op blanket otherwise (#590) by @nazar-pc
 - Enable spawning web workers from inside web workers (nested workers) (#547) by @Madoshakalaka
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
 
 ### Version 0.6.0
 
@@ -508,6 +528,7 @@
 
 ### Version 0.2.1
 
+- Migrate to Edition 2024 and increase MSRV to 1.85 (#553) by @ranile
 - Bump `syn` to 3.x (#589) by @nazar-pc
 
 ### Version 0.2.0

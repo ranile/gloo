@@ -1,6 +1,6 @@
 [package]
 name = "gloo-net"
-version = "0.7.0"
+version = "0.8.0"
 authors = [
   "Rust and WebAssembly Working Group",
   "Elina <imelina@elina.website>",
@@ -19,7 +19,7 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
-wasm-bindgen = "0.2"
+wasm-bindgen = { workspace = true }
 web-sys = "0.3"
 js-sys = { workspace = true }
 gloo-utils = { version = "0.3", path = "../utils", default-features = false }

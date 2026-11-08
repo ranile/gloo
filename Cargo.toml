@@ -5,7 +5,7 @@ edition = { workspace = true }
 license = "MIT OR Apache-2.0"
 name = "gloo"
 readme = "README.md"
-version = "0.12.0"
+version = "0.13.0"
 repository = "https://github.com/rustwasm/gloo"
 homepage = "https://gloo-rs.web.app/"
 documentation = "https://docs.rs/gloo/"
@@ -25,14 +25,14 @@ gloo-storage = { version = "0.4", path = "crates/storage", optional = true }
 gloo-render = { version = "0.3", path = "crates/render", optional = true }
 gloo-console = { version = "0.4", path = "crates/console", optional = true }
 gloo-utils = { version = "0.3", path = "crates/utils", optional = true }
-gloo-history = { version = "0.3", path = "crates/history", optional = true }
-gloo-worker = { version = "0.6", path = "crates/worker", optional = true }
-gloo-net = { version = "0.7", path = "crates/net", optional = true }
+gloo-history = { version = "0.4", path = "crates/history", optional = true }
+gloo-worker = { version = "0.7", path = "crates/worker", optional = true }
+gloo-net = { version = "0.8", path = "crates/net", optional = true }
 
 [workspace.dependencies]
 thiserror = "2.0"
 wasm-bindgen-futures = "0.4.45"
-wasm-bindgen = "0.2"
+wasm-bindgen = "0.2.114"
 wasm-bindgen-test = "0.3.45"
 js-sys = "0.3.91"
 
