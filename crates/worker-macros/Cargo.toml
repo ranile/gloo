@@ -16,9 +16,9 @@ proc-macro = true
 
 [dependencies]
 proc-macro-crate = "3.5.0"
-proc-macro2 = "1.0.47"
-quote = "1.0.21"
-syn = { version = "2.0.15", features = ["full"] }
+proc-macro2 = "1.0.91"
+quote = "1.0.35"
+syn = { version = "3.0.0", features = ["full"] }
 
 [dev-dependencies]
 trybuild = "1.0.116"
