@@ -8,6 +8,7 @@ use std::rc::Rc;
 use serde::Serialize;
 use wasm_bindgen::UnwrapThrowExt;
 
+use crate::CallbackUnwindSafe;
 use crate::history::History;
 use crate::listener::HistoryListener;
 use crate::location::Location;
@@ -345,7 +346,7 @@ impl History for MemoryHistory {
 
     fn listen<CB>(&self, callback: CB) -> HistoryListener
     where
-        CB: Fn() + 'static,
+        CB: Fn() + 'static + CallbackUnwindSafe,
     {
         // Callbacks do not receive a copy of [`History`] to prevent reference cycle.
         let cb = Rc::new(callback) as Rc<dyn Fn()>;

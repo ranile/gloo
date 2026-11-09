@@ -1,6 +1,7 @@
 use futures::stream::StreamExt;
 use pinned::mpsc;
 use pinned::mpsc::UnboundedReceiver;
+use std::panic::AssertUnwindSafe;
 
 use super::traits::Oneshot;
 use super::worker::OneshotWorker;
@@ -37,6 +38,10 @@ where
         CODEC: Codec,
     {
         let (tx, rx) = mpsc::unbounded();
+        // The sender is not `UnwindSafe`, but sending either completes or doesn't, so a panic
+        // leaves nothing broken behind. Calling it through `Deref` makes the closure capture the
+        // wrapper rather than the inner sender.
+        let tx = AssertUnwindSafe(tx);
         spawner.callback(move |output| {
             let _ = tx.send_now(output);
         });
@@ -49,6 +54,10 @@ where
     /// This method creates a new bridge that can be used to execute tasks on the same worker instance.
     pub fn fork(&self) -> Self {
         let (tx, rx) = mpsc::unbounded();
+        // The sender is not `UnwindSafe`, but sending either completes or doesn't, so a panic
+        // leaves nothing broken behind. Calling it through `Deref` makes the closure capture the
+        // wrapper rather than the inner sender.
+        let tx = AssertUnwindSafe(tx);
         let inner = self.inner.fork(Some(move |output| {
             let _ = tx.send_now(output);
         }));

@@ -4,6 +4,7 @@ use gloo_utils::window;
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys::Url;
 
+use crate::CallbackUnwindSafe;
 use crate::browser::BrowserHistory;
 use crate::history::History;
 use crate::listener::HistoryListener;
@@ -188,7 +189,7 @@ impl History for HashHistory {
 
     fn listen<CB>(&self, callback: CB) -> HistoryListener
     where
-        CB: Fn() + 'static,
+        CB: Fn() + 'static + CallbackUnwindSafe,
     {
         self.inner.listen(callback)
     }

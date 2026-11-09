@@ -1,4 +1,5 @@
 use std::fmt;
+use std::panic::AssertUnwindSafe;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
@@ -69,6 +70,10 @@ where
         CODEC: Codec,
     {
         let (tx, rx) = mpsc::unbounded();
+        // The sender is not `UnwindSafe`, but sending either completes or doesn't, so a panic
+        // leaves nothing broken behind. Calling it through `Deref` makes the closure capture the
+        // wrapper rather than the inner sender.
+        let tx = AssertUnwindSafe(tx);
         spawner.callback(move |output| Self::output_callback(&tx, output));
 
         rx
@@ -79,6 +84,10 @@ where
     /// This method creates a new bridge connected to a new reactor on the same worker instance.
     pub fn fork(&self) -> Self {
         let (tx, rx) = mpsc::unbounded();
+        // The sender is not `UnwindSafe`, but sending either completes or doesn't, so a panic
+        // leaves nothing broken behind. Calling it through `Deref` makes the closure capture the
+        // wrapper rather than the inner sender.
+        let tx = AssertUnwindSafe(tx);
         let inner = self
             .inner
             .fork(Some(move |output| Self::output_callback(&tx, output)));

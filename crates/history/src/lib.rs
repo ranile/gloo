@@ -27,3 +27,21 @@ pub use error::{HistoryError, HistoryResult};
 pub use history::History;
 pub use listener::HistoryListener;
 pub use location::Location;
+
+/// Bound carrying the unwind-safety requirement on [`History::listen`] callbacks.
+///
+/// Under `panic = "unwind"` on wasm the callback may be invoked across a
+/// `catch_unwind` boundary inside `wasm_bindgen`, so this resolves to
+/// [`std::panic::UnwindSafe`]. Under any other panic strategy it is a no-op
+/// blanket. Wrap non-`UnwindSafe` captures in [`std::panic::AssertUnwindSafe`]
+/// at the call site.
+#[cfg(all(target_arch = "wasm32", panic = "unwind"))]
+pub trait CallbackUnwindSafe: std::panic::UnwindSafe {}
+#[cfg(all(target_arch = "wasm32", panic = "unwind"))]
+impl<T: std::panic::UnwindSafe> CallbackUnwindSafe for T {}
+
+#[doc(hidden)]
+#[cfg(not(all(target_arch = "wasm32", panic = "unwind")))]
+pub trait CallbackUnwindSafe {}
+#[cfg(not(all(target_arch = "wasm32", panic = "unwind")))]
+impl<T> CallbackUnwindSafe for T {}

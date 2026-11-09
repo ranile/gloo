@@ -12,6 +12,7 @@ use super::messages::ToWorker;
 use super::native_worker::NativeWorkerExt;
 use super::traits::Worker;
 use super::{Callback, Shared};
+use crate::CallbackUnwindSafe;
 use crate::codec::Codec;
 
 pub(crate) type ToWorkerQueue<W> = Vec<ToWorker<W>>;
@@ -125,7 +126,7 @@ where
     /// This creates a new [HandlerID] that helps the worker to differentiate bridges.
     pub fn fork<F>(&self, cb: Option<F>) -> Self
     where
-        F: 'static + Fn(W::Output),
+        F: 'static + Fn(W::Output) + CallbackUnwindSafe,
     {
         let cb = cb.map(|m| Rc::new(m) as Rc<dyn Fn(W::Output)>);
         let handler_id = HandlerId::new();
