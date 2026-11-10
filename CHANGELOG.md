@@ -487,6 +487,10 @@
 
 ## `worker-macros`
 
+### Version 0.2.1
+
+- Bump `syn` to 3.x (#589) by @nazar-pc
+
 ### Version 0.2.0
 
 - Update MSRV to 1.82 via workspace inheritance (#505) by @martinfrances107
