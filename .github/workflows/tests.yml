@@ -145,7 +145,7 @@ jobs:
       - name: Build crates with panic=unwind
         env:
           RUSTFLAGS: '-Cpanic=unwind'
-        run: cargo build -p gloo-timers -p gloo-events -p gloo-render -p gloo-net -p gloo-worker --all-features --target wasm32-unknown-unknown -Zbuild-std=std,panic_unwind
+        run: cargo build -p gloo-timers -p gloo-events -p gloo-render -p gloo-net -p gloo-worker -p gloo-file -p gloo-history --all-features --target wasm32-unknown-unknown -Zbuild-std=std,panic_unwind
 
   test-history-wasi:
     name: Test gloo-history WASI

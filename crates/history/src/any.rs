@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 
+use crate::CallbackUnwindSafe;
 use crate::browser::BrowserHistory;
 use crate::hash::HashHistory;
 use crate::history::History;
@@ -154,7 +155,7 @@ impl History for AnyHistory {
 
     fn listen<CB>(&self, callback: CB) -> HistoryListener
     where
-        CB: Fn() + 'static,
+        CB: Fn() + 'static + CallbackUnwindSafe,
     {
         match self {
             Self::Browser(m) => m.listen(callback),

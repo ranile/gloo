@@ -2,11 +2,12 @@ use wasm_bindgen::throw_str;
 
 pub mod callbacks {
     use crate::{
+        CallbackUnwindSafe,
         blob::Blob,
         file_reader::{FileReadError, ReadyState},
     };
     use gloo_events::EventListener;
-    use std::{cell::RefCell, rc::Rc};
+    use std::{cell::RefCell, panic::AssertUnwindSafe, rc::Rc};
     use wasm_bindgen::{JsCast, UnwrapThrowExt, prelude::*, throw_str};
 
     /// A guard object that aborts the file read when dropped (if the read isn't already
@@ -32,7 +33,7 @@ pub mod callbacks {
     /// cancelled.
     pub fn read_as_text<F>(blob: &Blob, callback: F) -> FileReader
     where
-        F: FnOnce(Result<String, FileReadError>) + 'static,
+        F: FnOnce(Result<String, FileReadError>) + 'static + CallbackUnwindSafe,
     {
         read(
             blob,
@@ -49,7 +50,7 @@ pub mod callbacks {
     /// cancelled.
     pub fn read_as_data_url<F>(blob: &Blob, callback: F) -> FileReader
     where
-        F: FnOnce(Result<String, FileReadError>) + 'static,
+        F: FnOnce(Result<String, FileReadError>) + 'static + CallbackUnwindSafe,
     {
         read(
             blob,
@@ -65,7 +66,7 @@ pub mod callbacks {
     /// cancelled.
     pub fn read_as_array_buffer<F>(blob: &Blob, callback: F) -> FileReader
     where
-        F: FnOnce(Result<js_sys::ArrayBuffer, FileReadError>) + 'static,
+        F: FnOnce(Result<js_sys::ArrayBuffer, FileReadError>) + 'static + CallbackUnwindSafe,
     {
         read(
             blob,
@@ -81,7 +82,7 @@ pub mod callbacks {
     /// cancelled.
     pub fn read_as_bytes<F>(blob: &Blob, callback: F) -> FileReader
     where
-        F: FnOnce(Result<Vec<u8>, FileReadError>) + 'static,
+        F: FnOnce(Result<Vec<u8>, FileReadError>) + 'static + CallbackUnwindSafe,
     {
         read_as_array_buffer(blob, move |result| {
             callback(result.map(|buffer| js_sys::Uint8Array::new(&buffer).to_vec()));
@@ -95,7 +96,7 @@ pub mod callbacks {
     /// runs the async read on the `FileReader`.
     fn read<T, CF, EF, RF>(blob: &Blob, callback: CF, extract_fn: EF, read_fn: RF) -> FileReader
     where
-        CF: FnOnce(Result<T, FileReadError>) + 'static,
+        CF: FnOnce(Result<T, FileReadError>) + 'static + CallbackUnwindSafe,
         EF: Fn(JsValue) -> T + 'static,
         RF: Fn(&web_sys::FileReader, &web_sys::Blob) + 'static,
     {
@@ -107,17 +108,24 @@ pub mod callbacks {
 
         let reader = web_sys::FileReader::new().unwrap_throw();
 
-        let load_reader = reader.clone();
-        let error_reader = reader.clone();
+        // The callback itself is required to be unwind safe, but sharing it through `Rc<RefCell<_>>`
+        // is not `UnwindSafe`. A panic in the callback can only happen after it was taken out of
+        // the `Option`, so there is no broken state left behind to observe.
+        let load_state = AssertUnwindSafe((load_callback, extract_fn, reader.clone()));
+        let error_state = AssertUnwindSafe((error_callback, reader.clone()));
         // Either the load listener or the error listener will be called, never both (so FnOnce is
         // ok).
         let load_listener = EventListener::new(&reader, "load", move |_event| {
+            // Destructuring through `Deref` makes the closure capture the whole wrapper rather than
+            // its fields
+            let (load_callback, extract_fn, load_reader) = &*load_state;
             let result = extract_fn(load_reader.result().unwrap_throw());
             let callback = load_callback.borrow_mut().take().unwrap_throw();
             callback(Ok(result));
         });
 
         let error_listener = EventListener::new(&reader, "error", move |_event| {
+            let (error_callback, error_reader) = &*error_state;
             let exception = error_reader.error().unwrap_throw();
             let error = match exception.name().as_str() {
                 "NotFoundError" => FileReadError::NotFound(exception.message()),
@@ -144,7 +152,15 @@ pub mod callbacks {
 #[cfg(feature = "futures")]
 pub mod futures {
     use crate::{Blob, FileReadError};
+    use std::panic::AssertUnwindSafe;
     use wasm_bindgen::UnwrapThrowExt;
+
+    /// Unwraps `AssertUnwindSafe<T>` by value. Doing `w.0` inside a `move` closure would make the
+    /// closure capture the inner `T` instead of the wrapper due to disjoint closure captures.
+    #[inline(always)]
+    fn unwrap_assert_unwind_safe<T>(w: AssertUnwindSafe<T>) -> T {
+        w.0
+    }
 
     /// Returns the contents of `blob` as a text string.
     ///
@@ -152,8 +168,13 @@ pub mod futures {
     /// without borrowing the `Blob` for the lifetime of the future.
     pub fn read_as_text(blob: &Blob) -> impl Future<Output = Result<String, FileReadError>> {
         let (sender, receiver) = futures_channel::oneshot::channel();
+        // `oneshot::Sender` is not `UnwindSafe`, but it is consumed by `send` and never observed
+        // after that
+        let sender = AssertUnwindSafe(sender);
         let reader = super::callbacks::read_as_text(blob, |result| {
-            sender.send(result).unwrap_throw();
+            unwrap_assert_unwind_safe(sender)
+                .send(result)
+                .unwrap_throw();
         });
 
         async move {
@@ -169,8 +190,13 @@ pub mod futures {
     /// without borrowing the `Blob` for the lifetime of the future.
     pub fn read_as_data_url(blob: &Blob) -> impl Future<Output = Result<String, FileReadError>> {
         let (sender, receiver) = futures_channel::oneshot::channel();
+        // `oneshot::Sender` is not `UnwindSafe`, but it is consumed by `send` and never observed
+        // after that
+        let sender = AssertUnwindSafe(sender);
         let reader = super::callbacks::read_as_data_url(blob, |result| {
-            sender.send(result).unwrap_throw();
+            unwrap_assert_unwind_safe(sender)
+                .send(result)
+                .unwrap_throw();
         });
 
         async move {
@@ -189,8 +215,13 @@ pub mod futures {
         blob: &Blob,
     ) -> impl Future<Output = Result<js_sys::ArrayBuffer, FileReadError>> {
         let (sender, receiver) = futures_channel::oneshot::channel();
+        // `oneshot::Sender` is not `UnwindSafe`, but it is consumed by `send` and never observed
+        // after that
+        let sender = AssertUnwindSafe(sender);
         let reader = super::callbacks::read_as_array_buffer(blob, |result| {
-            sender.send(result).unwrap_throw();
+            unwrap_assert_unwind_safe(sender)
+                .send(result)
+                .unwrap_throw();
         });
 
         async move {
@@ -207,8 +238,13 @@ pub mod futures {
     /// but without borrowing the `Blob` fore the lifetime of the future.
     pub fn read_as_bytes(blob: &Blob) -> impl Future<Output = Result<Vec<u8>, FileReadError>> {
         let (sender, receiver) = futures_channel::oneshot::channel();
+        // `oneshot::Sender` is not `UnwindSafe`, but it is consumed by `send` and never observed
+        // after that
+        let sender = AssertUnwindSafe(sender);
         let reader = super::callbacks::read_as_bytes(blob, |result| {
-            sender.send(result).unwrap_throw();
+            unwrap_assert_unwind_safe(sender)
+                .send(result)
+                .unwrap_throw();
         });
 
         async move {

@@ -1,4 +1,4 @@
-use std::{borrow::Cow, cell::RefCell, fmt, rc::Rc};
+use std::{borrow::Cow, cell::RefCell, fmt, panic::AssertUnwindSafe, rc::Rc};
 
 use gloo_events::EventListener;
 use gloo_utils::window;
@@ -6,6 +6,7 @@ use serde::Serialize;
 use wasm_bindgen::{JsValue, UnwrapThrowExt};
 use web_sys::Url;
 
+use crate::CallbackUnwindSafe;
 use crate::history::History;
 use crate::listener::HistoryListener;
 use crate::location::Location;
@@ -202,7 +203,7 @@ impl History for BrowserHistory {
 
     fn listen<CB>(&self, callback: CB) -> HistoryListener
     where
-        CB: Fn() + 'static,
+        CB: Fn() + 'static + CallbackUnwindSafe,
     {
         // Callbacks do not receive a copy of [`History`] to prevent reference cycle.
         let cb = Rc::new(callback) as Rc<dyn Fn()>;
@@ -252,7 +253,12 @@ impl Default for BrowserHistory {
                 };
 
                 let listener = {
-                    let history = history.clone();
+                    // `BrowserHistory` holds `Rc<RefCell<_>>`, which is not `UnwindSafe`, while
+                    // callbacks themselves are required to be unwind safe by `listen`. The
+                    // `RefCell` borrow is released on unwind, so a panicking callback leaves no
+                    // broken state behind. Calling a method autoderefs through the wrapper, so the
+                    // closure captures `AssertUnwindSafe` and not the inner value.
+                    let history = AssertUnwindSafe(history.clone());
 
                     // Listens to popstate.
                     EventListener::new(&window, "popstate", move |_| {

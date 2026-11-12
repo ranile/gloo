@@ -109,6 +109,10 @@
 
 ## `gloo-file`
 
+### Version 0.5.0
+
+- **Breaking:** `callbacks::read_as_*` functions now require the callback to implement `CallbackUnwindSafe`, which resolves to `std::panic::UnwindSafe` under `panic = "unwind"` on wasm and is a no-op blanket otherwise (#590) by @nazar-pc
+
 ### Version 0.4.0
 
 - Fix typo in doc comments (#440) by @qrilka
@@ -144,6 +148,7 @@
 ### Version 0.4.0
 
 - **Breaking:** Serialize history state into `history.state` instead of in-memory map (#541) by @ranile
+- **Breaking:** `History::listen` now requires the callback to implement `CallbackUnwindSafe`, which resolves to `std::panic::UnwindSafe` under `panic = "unwind"` on wasm and is a no-op blanket otherwise (#590) by @nazar-pc
 
 ### Version 0.3.0
 
@@ -448,6 +453,7 @@
 ### Version 0.7.0
 
 - **BREAKING:** Replace `Bincode` with `Postcard` (#540) by @ranile
+- **BREAKING:** `WorkerSpawner::callback` and `WorkerBridge::fork` now require the callback to implement `CallbackUnwindSafe`, which resolves to `std::panic::UnwindSafe` under `panic = "unwind"` on wasm and is a no-op blanket otherwise (#590) by @nazar-pc
 - Keep EventSource alive until all subscriptions are closed (#545) by @ranile  
   **BREAKING:** EventSource no longer closes the underlying connection on drop. The connection now stays alive as long
   as any EventSourceSubscription exists. Call EventSource::close() to shut down immediately.

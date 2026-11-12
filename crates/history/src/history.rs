@@ -2,6 +2,7 @@ use std::borrow::Cow;
 
 use serde::Serialize;
 
+use crate::CallbackUnwindSafe;
 use crate::listener::HistoryListener;
 use crate::location::Location;
 #[cfg(feature = "query")]
@@ -103,7 +104,7 @@ pub trait History: Clone + PartialEq {
     /// when dropped.
     fn listen<CB>(&self, callback: CB) -> HistoryListener
     where
-        CB: Fn() + 'static;
+        CB: Fn() + 'static + CallbackUnwindSafe;
 
     /// Returns current [`Location`].
     fn location(&self) -> Location;

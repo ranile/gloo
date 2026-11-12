@@ -16,6 +16,7 @@ use super::messages::FromWorker;
 use super::native_worker::{DedicatedWorker, NativeWorkerExt};
 use super::traits::Worker;
 use super::{Callback, Shared};
+use crate::CallbackUnwindSafe;
 use crate::codec::{Codec, Postcard};
 
 /// A spawner to create workers.
@@ -82,7 +83,7 @@ where
     /// Sets a callback.
     pub fn callback<F>(&mut self, cb: F) -> &mut Self
     where
-        F: 'static + Fn(W::Output),
+        F: 'static + Fn(W::Output) + CallbackUnwindSafe,
     {
         self.callback = Some(Rc::new(cb));
 
