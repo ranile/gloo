@@ -1,6 +1,6 @@
 [package]
 name = "gloo-worker-macros"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Rust and WebAssembly Working Group"]
 edition = { workspace = true }
 readme = "README.md"
