@@ -216,6 +216,10 @@
 
 ## `gloo-net`
 
+### Version 0.8.1
+
+- perf(net): send ws binary messages without a Blob (#585) by @0xmatthewb
+
 ### Version 0.8.0
 
 - Keep EventSource alive until all subscriptions are closed (#545) by @ranile  
