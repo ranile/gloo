@@ -258,10 +258,10 @@ impl HashHistory {
         } else if !raw.starts_with('/') {
             web_sys::console::warn_1(
                 &format!(
-                    "[gloo_history] HashHistory: URL hash '#{}' does not start with '/'. \
-                     The hash was normalized to '#/{}'. \
+                    "[gloo_history] HashHistory: URL hash '#{raw}' does not start with '/'. \
+                     The hash was normalized to '#/{raw}'. \
                      Ensure hash-based routes always begin with '#/'.",
-                    raw, raw
+                    raw = raw
                 )
                 .into(),
             );
