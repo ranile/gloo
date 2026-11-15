@@ -261,7 +261,7 @@ dependencies = [
  "chrono",
  "console_error_panic_hook",
  "futures-util",
- "gloo 0.13.0",
+ "gloo 0.13.1",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
@@ -290,7 +290,7 @@ dependencies = [
 name = "example-history-wasi"
 version = "0.1.0"
 dependencies = [
- "gloo 0.13.0",
+ "gloo 0.13.1",
 ]
 
 [[package]]
@@ -299,7 +299,7 @@ version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "futures",
- "gloo 0.13.0",
+ "gloo 0.13.1",
  "js-sys",
  "pulldown-cmark",
  "tokio",
@@ -315,7 +315,7 @@ version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "futures",
- "gloo 0.13.0",
+ "gloo 0.13.1",
  "primes",
  "serde",
  "tokio",
@@ -505,14 +505,14 @@ dependencies = [
 
 [[package]]
 name = "gloo"
-version = "0.13.0"
+version = "0.13.1"
 dependencies = [
  "gloo-console 0.4.1",
  "gloo-dialogs 0.3.1",
  "gloo-events 0.3.1",
  "gloo-file 0.4.1",
  "gloo-history 0.4.0",
- "gloo-net 0.8.0",
+ "gloo-net 0.8.1",
  "gloo-render 0.3.1",
  "gloo-storage 0.4.1",
  "gloo-timers 0.4.1",
@@ -671,7 +671,7 @@ dependencies = [
 
 [[package]]
 name = "gloo-net"
-version = "0.8.0"
+version = "0.8.1"
 dependencies = [
  "futures",
  "futures-channel",
@@ -839,7 +839,7 @@ dependencies = [
 name = "gloo-worker-macros"
 version = "0.2.1"
 dependencies = [
- "gloo 0.13.0",
+ "gloo 0.13.1",
  "proc-macro-crate 3.5.0",
  "proc-macro2",
  "quote",
