@@ -49,4 +49,6 @@ jobs:
         with:
           name: pr-info
           path: "${{ env.PR_INFO_FILE }}"
+          # PR_INFO_FILE is a dotfile, which upload-artifact skips by default since v4.4
+          include-hidden-files: true
           retention-days: 1
